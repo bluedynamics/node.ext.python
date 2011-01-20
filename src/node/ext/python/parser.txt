@@ -18,7 +18,7 @@ Create a ``Module``. ``name`` is the abspath of the destination Python file, if
 it already exists, read and parse it.
 ::
 
-    >>> from agx.io.python import Module
+    >>> from node.ext.python import Module
 
 Disable auto parsing.
 ::
@@ -90,51 +90,51 @@ Hook ast children.
     >>> module.parser._markastrelated(module)
   
     >>> module.printtree()
-    <class 'agx.io.python.nodes.Module'>: [1:194] - -1
-      <class 'agx.io.python.nodes.Docstring'>: [5:8] - 0
-      <class 'agx.io.python.nodes.Docstring'>: [10:10] - 0
-      <class 'agx.io.python.nodes.Import'>: [12:12] - 0
-      <class 'agx.io.python.nodes.Import'>: [13:13] - 0
-      <class 'agx.io.python.nodes.Import'>: [14:14] - 0
-      <class 'agx.io.python.nodes.Import'>: [15:15] - 0
-      <class 'agx.io.python.nodes.Import'>: [16:16] - 0
-      <class 'agx.io.python.nodes.Function'>: [81:82] - 0
-      <class 'agx.io.python.nodes.Attribute'>: [86:86] - 0
-      <class 'agx.io.python.nodes.Attribute'>: [88:88] - 0
-      <class 'agx.io.python.nodes.Attribute'>: [90:92] - 0
-      <class 'agx.io.python.nodes.Attribute'>: [94:99] - 0
-      <class 'agx.io.python.nodes.Attribute'>: [101:103] - 0
-      <class 'agx.io.python.nodes.Attribute'>: [105:105] - 0
-      <class 'agx.io.python.nodes.Attribute'>: [107:107] - 0
-      <class 'agx.io.python.nodes.Attribute'>: [109:109] - 0
-      <class 'agx.io.python.nodes.Function'>: [115:116] - 0
-        <class 'agx.io.python.nodes.Decorator'>: [114:114] - 0
-      <class 'agx.io.python.nodes.Function'>: [122:125] - 0
-      <class 'agx.io.python.nodes.Class'>: [127:144] - 0
-        <class 'agx.io.python.nodes.Docstring'>: [128:129] - 1
-        <class 'agx.io.python.nodes.Attribute'>: [131:131] - 1
-        <class 'agx.io.python.nodes.Attribute'>: [132:132] - 1
-        <class 'agx.io.python.nodes.Function'>: [137:140] - 1
-          <class 'agx.io.python.nodes.Docstring'>: [138:139] - 2
-        <class 'agx.io.python.nodes.Function'>: [143:144] - 1
-          <class 'agx.io.python.nodes.Decorator'>: [142:142] - 1
-      <class 'agx.io.python.nodes.Class'>: [146:160] - 0
-        <class 'agx.io.python.nodes.Docstring'>: [147:148] - 1
-        <class 'agx.io.python.nodes.Function'>: [157:160] - 1
-          <class 'agx.io.python.nodes.Docstring'>: [158:159] - 2
-      <class 'agx.io.python.nodes.Class'>: [162:165] - 0
-        <class 'agx.io.python.nodes.Docstring'>: [164:165] - 1
-      <class 'agx.io.python.nodes.Function'>: [170:171] - 0
-        <class 'agx.io.python.nodes.Decorator'>: [167:167] - 0
-        <class 'agx.io.python.nodes.Decorator'>: [168:168] - 0
-        <class 'agx.io.python.nodes.Decorator'>: [169:169] - 0
-      <class 'agx.io.python.nodes.Function'>: [176:177] - 0
-        <class 'agx.io.python.nodes.Decorator'>: [173:175] - 0
-      <class 'agx.io.python.nodes.Import'>: [179:180] - 0
-      <class 'agx.io.python.nodes.Import'>: [182:185] - 0
-      <class 'agx.io.python.nodes.Import'>: [187:187] - 0
-      <class 'agx.io.python.nodes.Function'>: [189:194] - 0
-        <class 'agx.io.python.nodes.Docstring'>: [190:191] - 1
+    <class 'node.ext.python.nodes.Module'>: [1:194] - -1
+      <class 'node.ext.python.nodes.Docstring'>: [5:8] - 0
+      <class 'node.ext.python.nodes.Docstring'>: [10:10] - 0
+      <class 'node.ext.python.nodes.Import'>: [12:12] - 0
+      <class 'node.ext.python.nodes.Import'>: [13:13] - 0
+      <class 'node.ext.python.nodes.Import'>: [14:14] - 0
+      <class 'node.ext.python.nodes.Import'>: [15:15] - 0
+      <class 'node.ext.python.nodes.Import'>: [16:16] - 0
+      <class 'node.ext.python.nodes.Function'>: [81:82] - 0
+      <class 'node.ext.python.nodes.Attribute'>: [86:86] - 0
+      <class 'node.ext.python.nodes.Attribute'>: [88:88] - 0
+      <class 'node.ext.python.nodes.Attribute'>: [90:92] - 0
+      <class 'node.ext.python.nodes.Attribute'>: [94:99] - 0
+      <class 'node.ext.python.nodes.Attribute'>: [101:103] - 0
+      <class 'node.ext.python.nodes.Attribute'>: [105:105] - 0
+      <class 'node.ext.python.nodes.Attribute'>: [107:107] - 0
+      <class 'node.ext.python.nodes.Attribute'>: [109:109] - 0
+      <class 'node.ext.python.nodes.Function'>: [115:116] - 0
+        <class 'node.ext.python.nodes.Decorator'>: [114:114] - 0
+      <class 'node.ext.python.nodes.Function'>: [122:125] - 0
+      <class 'node.ext.python.nodes.Class'>: [127:144] - 0
+        <class 'node.ext.python.nodes.Docstring'>: [128:129] - 1
+        <class 'node.ext.python.nodes.Attribute'>: [131:131] - 1
+        <class 'node.ext.python.nodes.Attribute'>: [132:132] - 1
+        <class 'node.ext.python.nodes.Function'>: [137:140] - 1
+          <class 'node.ext.python.nodes.Docstring'>: [138:139] - 2
+        <class 'node.ext.python.nodes.Function'>: [143:144] - 1
+          <class 'node.ext.python.nodes.Decorator'>: [142:142] - 1
+      <class 'node.ext.python.nodes.Class'>: [146:160] - 0
+        <class 'node.ext.python.nodes.Docstring'>: [147:148] - 1
+        <class 'node.ext.python.nodes.Function'>: [157:160] - 1
+          <class 'node.ext.python.nodes.Docstring'>: [158:159] - 2
+      <class 'node.ext.python.nodes.Class'>: [162:165] - 0
+        <class 'node.ext.python.nodes.Docstring'>: [164:165] - 1
+      <class 'node.ext.python.nodes.Function'>: [170:171] - 0
+        <class 'node.ext.python.nodes.Decorator'>: [167:167] - 0
+        <class 'node.ext.python.nodes.Decorator'>: [168:168] - 0
+        <class 'node.ext.python.nodes.Decorator'>: [169:169] - 0
+      <class 'node.ext.python.nodes.Function'>: [176:177] - 0
+        <class 'node.ext.python.nodes.Decorator'>: [173:175] - 0
+      <class 'node.ext.python.nodes.Import'>: [179:180] - 0
+      <class 'node.ext.python.nodes.Import'>: [182:185] - 0
+      <class 'node.ext.python.nodes.Import'>: [187:187] - 0
+      <class 'node.ext.python.nodes.Function'>: [189:194] - 0
+        <class 'node.ext.python.nodes.Docstring'>: [190:191] - 1
 
 Parse Code Blocks and hook children.
 ::
@@ -166,7 +166,7 @@ Check pointers of ``ProtectedSection``. Case empty.
 Check ``Import.parser._definitionends`` method.
 ::
 
-    >>> from agx.io.python import Import
+    >>> from node.ext.python import Import
     >>> import_ = Import(buffer=module.buffer)
     >>> import_.buffer[11:12]
     [u'import foo']
@@ -197,7 +197,7 @@ Check ``Import.parser._definitionends`` method.
 Check ``Decorator.parser._definitionends`` method.
 ::
 
-    >>> from agx.io.python import Decorator
+    >>> from node.ext.python import Decorator
     >>> decorator = Decorator(buffer=module.buffer)
     >>> decorator.buffer[166:169]
     [u"@decorator_1('a')", 
@@ -224,7 +224,7 @@ Check ``Decorator.parser._definitionends`` method.
 Check ``Function.parser._definitionends`` method.
 ::
 
-    >>> from agx.io.python import Function
+    >>> from node.ext.python import Function
     >>> func = Function(buffer=module.buffer)
     >>> func.buffer[114:115]
     [u'def somedecoratedfunction(param):']
@@ -247,7 +247,7 @@ Check ``Function.parser._definitionends`` method.
 Check ``Class.parser._definitionends`` method.
 ::
 
-    >>> from agx.io.python import Class
+    >>> from node.ext.python import Class
     >>> class_ = Class(buffer=module.buffer)
     >>> class_.buffer[126:127]
     [u'class SomeClass(object):']
@@ -270,7 +270,7 @@ Check ``Class.parser._definitionends`` method.
 Check pointers of ``Import``. Case one-liner.
 ::
 
-    >>> from agx.io.python.interfaces import IImport
+    >>> from node.ext.python.interfaces import IImport
     >>> imports = [i for i in module.filtereditems(IImport)]
     >>> len(imports)
     8
@@ -472,7 +472,7 @@ Check pointers of ``Class``. Case comment after class def.
 Check pointers of ``Docstring``. Case multi line.
 ::
 
-    >>> from agx.io.python.interfaces import IDocstring
+    >>> from node.ext.python.interfaces import IDocstring
     >>> docstrings = [d for d in module.filtereditems(IDocstring)]
     >>> len(docstrings)
     2
@@ -624,8 +624,8 @@ Check the ``PythonNode.parser._findnodeposition`` method.
       Y[1..4]      
       Z[7..10]
 
-    >>> from agx.io.python.nodes import PythonNode
-    >>> from agx.io.python.parser import BaseParser
+    >>> from node.ext.python.nodes import PythonNode
+    >>> from node.ext.python.parser import BaseParser
     >>> class TestNode(PythonNode):
     ...     def __init__(self, name):
     ...         PythonNode.__init__(self, name)
@@ -703,72 +703,72 @@ Now the protected sections and blocks are added.
 ::
 
     >>> module.printtree()
-    <class 'agx.io.python.nodes.Module'>: [1:194] - -1
-      <class 'agx.io.python.nodes.Block'>: [2:3] - 0
-      <class 'agx.io.python.nodes.Docstring'>: [5:8] - 0
-      <class 'agx.io.python.nodes.Docstring'>: [10:10] - 0
-      <class 'agx.io.python.nodes.Import'>: [12:12] - 0
-      <class 'agx.io.python.nodes.Import'>: [13:13] - 0
-      <class 'agx.io.python.nodes.Import'>: [14:14] - 0
-      <class 'agx.io.python.nodes.Import'>: [15:15] - 0
-      <class 'agx.io.python.nodes.Import'>: [16:16] - 0
-      <class 'agx.io.python.nodes.Block'>: [18:79] - 0
-      <class 'agx.io.python.nodes.Function'>: [81:82] - 0
-        <class 'agx.io.python.nodes.Block'>: [82:82] - 1
-      <class 'agx.io.python.nodes.Block'>: [84:84] - 0
-      <class 'agx.io.python.nodes.Attribute'>: [86:86] - 0
-      <class 'agx.io.python.nodes.Attribute'>: [88:88] - 0
-      <class 'agx.io.python.nodes.Attribute'>: [90:92] - 0
-      <class 'agx.io.python.nodes.Attribute'>: [94:99] - 0
-      <class 'agx.io.python.nodes.Attribute'>: [101:103] - 0
-      <class 'agx.io.python.nodes.Attribute'>: [105:105] - 0
-      <class 'agx.io.python.nodes.Attribute'>: [107:107] - 0
-      <class 'agx.io.python.nodes.Attribute'>: [109:109] - 0
-      <class 'agx.io.python.nodes.Block'>: [111:112] - 0
-      <class 'agx.io.python.nodes.Function'>: [115:116] - 0
-        <class 'agx.io.python.nodes.Decorator'>: [114:114] - 0
-        <class 'agx.io.python.nodes.Block'>: [116:116] - 1
-      <class 'agx.io.python.nodes.ProtectedSection'>: [118:120] - 0
-      <class 'agx.io.python.nodes.Function'>: [122:125] - 0
-        <class 'agx.io.python.nodes.Block'>: [125:125] - 1
-      <class 'agx.io.python.nodes.Class'>: [127:144] - 0
-        <class 'agx.io.python.nodes.Docstring'>: [128:129] - 1
-        <class 'agx.io.python.nodes.Attribute'>: [131:131] - 1
-        <class 'agx.io.python.nodes.Attribute'>: [132:132] - 1
-        <class 'agx.io.python.nodes.ProtectedSection'>: [134:135] - 1
-        <class 'agx.io.python.nodes.Function'>: [137:140] - 1
-          <class 'agx.io.python.nodes.Docstring'>: [138:139] - 2
-          <class 'agx.io.python.nodes.Block'>: [140:140] - 2
-        <class 'agx.io.python.nodes.Function'>: [143:144] - 1
-          <class 'agx.io.python.nodes.Decorator'>: [142:142] - 1
-          <class 'agx.io.python.nodes.Block'>: [144:144] - 2
-      <class 'agx.io.python.nodes.Class'>: [146:160] - 0
-        <class 'agx.io.python.nodes.Docstring'>: [147:148] - 1
-        <class 'agx.io.python.nodes.Block'>: [150:155] - 1
-        <class 'agx.io.python.nodes.Function'>: [157:160] - 1
-          <class 'agx.io.python.nodes.Docstring'>: [158:159] - 2
-          <class 'agx.io.python.nodes.Block'>: [160:160] - 2
-      <class 'agx.io.python.nodes.Class'>: [162:165] - 0
-        <class 'agx.io.python.nodes.Docstring'>: [164:165] - 1
-      <class 'agx.io.python.nodes.Function'>: [170:171] - 0
-        <class 'agx.io.python.nodes.Decorator'>: [167:167] - 0
-        <class 'agx.io.python.nodes.Decorator'>: [168:168] - 0
-        <class 'agx.io.python.nodes.Decorator'>: [169:169] - 0
-        <class 'agx.io.python.nodes.Block'>: [171:171] - 1
-      <class 'agx.io.python.nodes.Function'>: [176:177] - 0
-        <class 'agx.io.python.nodes.Decorator'>: [173:175] - 0
-        <class 'agx.io.python.nodes.Block'>: [177:177] - 1
-      <class 'agx.io.python.nodes.Import'>: [179:180] - 0
-      <class 'agx.io.python.nodes.Import'>: [182:185] - 0
-      <class 'agx.io.python.nodes.Import'>: [187:187] - 0
-      <class 'agx.io.python.nodes.Function'>: [189:194] - 0
-        <class 'agx.io.python.nodes.Docstring'>: [190:191] - 1
-        <class 'agx.io.python.nodes.Block'>: [192:194] - 1
+    <class 'node.ext.python.nodes.Module'>: [1:194] - -1
+      <class 'node.ext.python.nodes.Block'>: [2:3] - 0
+      <class 'node.ext.python.nodes.Docstring'>: [5:8] - 0
+      <class 'node.ext.python.nodes.Docstring'>: [10:10] - 0
+      <class 'node.ext.python.nodes.Import'>: [12:12] - 0
+      <class 'node.ext.python.nodes.Import'>: [13:13] - 0
+      <class 'node.ext.python.nodes.Import'>: [14:14] - 0
+      <class 'node.ext.python.nodes.Import'>: [15:15] - 0
+      <class 'node.ext.python.nodes.Import'>: [16:16] - 0
+      <class 'node.ext.python.nodes.Block'>: [18:79] - 0
+      <class 'node.ext.python.nodes.Function'>: [81:82] - 0
+        <class 'node.ext.python.nodes.Block'>: [82:82] - 1
+      <class 'node.ext.python.nodes.Block'>: [84:84] - 0
+      <class 'node.ext.python.nodes.Attribute'>: [86:86] - 0
+      <class 'node.ext.python.nodes.Attribute'>: [88:88] - 0
+      <class 'node.ext.python.nodes.Attribute'>: [90:92] - 0
+      <class 'node.ext.python.nodes.Attribute'>: [94:99] - 0
+      <class 'node.ext.python.nodes.Attribute'>: [101:103] - 0
+      <class 'node.ext.python.nodes.Attribute'>: [105:105] - 0
+      <class 'node.ext.python.nodes.Attribute'>: [107:107] - 0
+      <class 'node.ext.python.nodes.Attribute'>: [109:109] - 0
+      <class 'node.ext.python.nodes.Block'>: [111:112] - 0
+      <class 'node.ext.python.nodes.Function'>: [115:116] - 0
+        <class 'node.ext.python.nodes.Decorator'>: [114:114] - 0
+        <class 'node.ext.python.nodes.Block'>: [116:116] - 1
+      <class 'node.ext.python.nodes.ProtectedSection'>: [118:120] - 0
+      <class 'node.ext.python.nodes.Function'>: [122:125] - 0
+        <class 'node.ext.python.nodes.Block'>: [125:125] - 1
+      <class 'node.ext.python.nodes.Class'>: [127:144] - 0
+        <class 'node.ext.python.nodes.Docstring'>: [128:129] - 1
+        <class 'node.ext.python.nodes.Attribute'>: [131:131] - 1
+        <class 'node.ext.python.nodes.Attribute'>: [132:132] - 1
+        <class 'node.ext.python.nodes.ProtectedSection'>: [134:135] - 1
+        <class 'node.ext.python.nodes.Function'>: [137:140] - 1
+          <class 'node.ext.python.nodes.Docstring'>: [138:139] - 2
+          <class 'node.ext.python.nodes.Block'>: [140:140] - 2
+        <class 'node.ext.python.nodes.Function'>: [143:144] - 1
+          <class 'node.ext.python.nodes.Decorator'>: [142:142] - 1
+          <class 'node.ext.python.nodes.Block'>: [144:144] - 2
+      <class 'node.ext.python.nodes.Class'>: [146:160] - 0
+        <class 'node.ext.python.nodes.Docstring'>: [147:148] - 1
+        <class 'node.ext.python.nodes.Block'>: [150:155] - 1
+        <class 'node.ext.python.nodes.Function'>: [157:160] - 1
+          <class 'node.ext.python.nodes.Docstring'>: [158:159] - 2
+          <class 'node.ext.python.nodes.Block'>: [160:160] - 2
+      <class 'node.ext.python.nodes.Class'>: [162:165] - 0
+        <class 'node.ext.python.nodes.Docstring'>: [164:165] - 1
+      <class 'node.ext.python.nodes.Function'>: [170:171] - 0
+        <class 'node.ext.python.nodes.Decorator'>: [167:167] - 0
+        <class 'node.ext.python.nodes.Decorator'>: [168:168] - 0
+        <class 'node.ext.python.nodes.Decorator'>: [169:169] - 0
+        <class 'node.ext.python.nodes.Block'>: [171:171] - 1
+      <class 'node.ext.python.nodes.Function'>: [176:177] - 0
+        <class 'node.ext.python.nodes.Decorator'>: [173:175] - 0
+        <class 'node.ext.python.nodes.Block'>: [177:177] - 1
+      <class 'node.ext.python.nodes.Import'>: [179:180] - 0
+      <class 'node.ext.python.nodes.Import'>: [182:185] - 0
+      <class 'node.ext.python.nodes.Import'>: [187:187] - 0
+      <class 'node.ext.python.nodes.Function'>: [189:194] - 0
+        <class 'node.ext.python.nodes.Docstring'>: [190:191] - 1
+        <class 'node.ext.python.nodes.Block'>: [192:194] - 1
 
 Check some ``Block`` contents.
 ::
 
-    >>> from agx.io.python.interfaces import IBlock
+    >>> from node.ext.python.interfaces import IBlock
     >>> blocks = [b for b in module.filtereditems(IBlock)]
     >>> block = blocks[0]
     >>> block.nodelevel
@@ -792,7 +792,7 @@ Check some ``Block`` contents.
 Check some ``ProtectedSection`` contents.
 ::
   
-    >>> from agx.io.python.interfaces import IProtectedSection
+    >>> from node.ext.python.interfaces import IProtectedSection
     >>> sec = [s for s in module.filtereditems(IProtectedSection)][0]
     >>> sec.nodelevel
     0
@@ -809,7 +809,7 @@ Check some ``ProtectedSection`` contents.
 Check some ``Docstring`` contents.
 ::
 
-    >>> from agx.io.python.interfaces import IDocstring
+    >>> from node.ext.python.interfaces import IDocstring
     >>> docstrings = [d for d in module.filtereditems(IDocstring)]
     >>> doc = docstrings[0]
     >>> doc.nodelevel
@@ -828,7 +828,7 @@ Check some ``Docstring`` contents.
 Check some ``Import`` attributes.
 ::
 
-    >>> from agx.io.python.interfaces import IImport
+    >>> from node.ext.python.interfaces import IImport
     >>> imports = [i for i in module.filtereditems(IImport)]
     >>> imp = imports[0]
     >>> imp.nodelevel
@@ -905,7 +905,7 @@ Check some ``Decorator`` contents.
 Check some ``Function`` contents.
 ::
 
-    >>> from agx.io.python.interfaces import IFunction
+    >>> from node.ext.python.interfaces import IFunction
     >>> functions = [f for f in module.filtereditems(IFunction)]
     >>> func = functions[0]
     >>> func.functionname
@@ -940,7 +940,7 @@ Check some ``Function`` contents.
 Check some ``Class`` contents.
 ::
 
-    >>> from agx.io.python.interfaces import IClass
+    >>> from node.ext.python.interfaces import IClass
     >>> classes = [c for c in module.filtereditems(IClass)]
     >>> class_ = classes[0]
     >>> class_.classname
@@ -1032,34 +1032,34 @@ Check Namespace package ``__init__.py`` parsing.
 
     >>> init = Module('%s/__init_.py' % datadir)
     >>> init.printtree()
-    <class 'agx.io.python.nodes.Module'>: [1:2] - -1
-      <class 'agx.io.python.nodes.Block'>: [2:2] - 0
+    <class 'node.ext.python.nodes.Module'>: [1:2] - -1
+      <class 'node.ext.python.nodes.Block'>: [2:2] - 0
 
-Create ``agx.io.directory.Directory`` instance and test the parsing handler.
+Create ``node.ext.directory.Directory`` instance and test the parsing handler.
 ::
 
-    >>> from agx.io.directory import Directory
+    >>> from node.ext.directory import Directory
     >>> directory = Directory(datadir)
     >>> module = Module()
     >>> module.printtree()
-    <class 'agx.io.python.nodes.Module'>: [?:?] - -1
+    <class 'node.ext.python.nodes.Module'>: [?:?] - -1
     
     >>> directory['rendered.py'] = module
     >>> module.printtree()
-    <class 'agx.io.python.nodes.Module'>: [1:43] - -1
-      <class 'agx.io.python.nodes.Docstring'>: [2:5] - 0
-      <class 'agx.io.python.nodes.ProtectedSection'>: [7:9] - 0
-      <class 'agx.io.python.nodes.Block'>: [11:12] - 0
-      <class 'agx.io.python.nodes.Attribute'>: [14:17] - 0
-      <class 'agx.io.python.nodes.Import'>: [19:20] - 0
-      <class 'agx.io.python.nodes.Class'>: [22:38] - 0
-        <class 'agx.io.python.nodes.Docstring'>: [23:24] - 1
-        <class 'agx.io.python.nodes.Attribute'>: [26:26] - 1
-        <class 'agx.io.python.nodes.Attribute'>: [27:30] - 1
-        <class 'agx.io.python.nodes.Function'>: [33:38] - 1
-          <class 'agx.io.python.nodes.Docstring'>: [34:35] - 2
-          <class 'agx.io.python.nodes.Block'>: [36:38] - 2
-          <class 'agx.io.python.nodes.Decorator'>: [32:32] - 1
-      <class 'agx.io.python.nodes.Class'>: [40:43] - 0
-        <class 'agx.io.python.nodes.Function'>: [42:43] - 1
-          <class 'agx.io.python.nodes.Block'>: [43:43] - 2
+    <class 'node.ext.python.nodes.Module'>: [1:43] - -1
+      <class 'node.ext.python.nodes.Docstring'>: [2:5] - 0
+      <class 'node.ext.python.nodes.ProtectedSection'>: [7:9] - 0
+      <class 'node.ext.python.nodes.Block'>: [11:12] - 0
+      <class 'node.ext.python.nodes.Attribute'>: [14:17] - 0
+      <class 'node.ext.python.nodes.Import'>: [19:20] - 0
+      <class 'node.ext.python.nodes.Class'>: [22:38] - 0
+        <class 'node.ext.python.nodes.Docstring'>: [23:24] - 1
+        <class 'node.ext.python.nodes.Attribute'>: [26:26] - 1
+        <class 'node.ext.python.nodes.Attribute'>: [27:30] - 1
+        <class 'node.ext.python.nodes.Function'>: [33:38] - 1
+          <class 'node.ext.python.nodes.Docstring'>: [34:35] - 2
+          <class 'node.ext.python.nodes.Block'>: [36:38] - 2
+          <class 'node.ext.python.nodes.Decorator'>: [32:32] - 1
+      <class 'node.ext.python.nodes.Class'>: [40:43] - 0
+        <class 'node.ext.python.nodes.Function'>: [42:43] - 1
+          <class 'node.ext.python.nodes.Block'>: [43:43] - 2

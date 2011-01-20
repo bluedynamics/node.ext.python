@@ -28,7 +28,7 @@ Define print helper.
 Required imports.
 ::
 
-    >>> from agx.io.python import (
+    >>> from node.ext.python import (
     ...     Module,
     ...     Docstring,
     ...     ProtectedSection,
@@ -343,7 +343,7 @@ Check ArgumentRenderer Mixin class.
 The ``render_arg`` and ``render_kwarg`` functions.
 ::
 
-    >>> from agx.io.python.renderer import ArgumentRenderer
+    >>> from node.ext.python.renderer import ArgumentRenderer
     >>> ar = ArgumentRenderer()
     >>> ar.render_arg('a')
     u'a'
@@ -364,7 +364,7 @@ The ``render_arg`` and ``render_kwarg`` functions.
     >>> ar.render_kwarg('name', None)
     u'name=None'
     
-    >>> from agx.io.python import Call
+    >>> from node.ext.python import Call
     >>> call = Call(name='SomeObj', args=[1, 2, 3], kwargs=dict(foo='"bar"'))
     >>> ar.render_arg(call)
     u'SomeObj(1, 2, 3, foo="bar")'

@@ -1,0 +1,7 @@
+*.pyc
+*.pyo
+src/node.ext.python.egg-info
+src/node/ext/python/tests/data/__init_.py
+src/node/ext/python/tests/data/moved.py
+src/node/ext/python/tests/data/rendered.py
+src/node/ext/python/tests/data/unchanged.py

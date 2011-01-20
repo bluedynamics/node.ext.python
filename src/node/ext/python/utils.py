@@ -1,11 +1,11 @@
 # Copyright BlueDynamics Alliance - http://bluedynamics.com
 # GNU General Public License Version 2
 
-from agx.io.python.interfaces import IModule
-from agx.io.python.interfaces import IImport
-from agx.io.python.interfaces import IDocstring
-from agx.io.python.interfaces import IBlock
-from agx.io.python import Import
+from node.ext.python.interfaces import IModule
+from node.ext.python.interfaces import IImport
+from node.ext.python.interfaces import IDocstring
+from node.ext.python.interfaces import IBlock
+from node.ext.python import Import
 
 class Imports(object):
     """Adapter like object for managing imports on modules.

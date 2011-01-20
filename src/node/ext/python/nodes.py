@@ -6,8 +6,8 @@ from odict import odict
 from zodict.node import Node
 from zope.interface import implements
 from zope.location import LocationIterator
-from agx.io.directory.interfaces import IDirectory
-from agx.io.python.interfaces import (
+from node.ext.directory.interfaces import IDirectory
+from node.ext.python.interfaces import (
     Incomplete,
     IPythonNode,
     IModule,

@@ -1,4 +1,4 @@
-agx.io.python.utils
+node.ext.python.utils
 ===================
 
 Define print helper.
@@ -14,18 +14,18 @@ The Imports helper class.
 Its context must be an IModule implemenation.
 ::
 
-    >>> from agx.io.python.utils import Imports
+    >>> from node.ext.python.utils import Imports
     >>> imp = Imports(object())
     Traceback (most recent call last):
       ...
     ValueError: Given context is not an IModule implementation
     
-    >>> from agx.io.python import Module
+    >>> from node.ext.python import Module
     >>> module = Module('somemodule.py')
     >>> module.rendererfactory._write_file = False
     >>> imp = Imports(module)
     >>> imp
-    <agx.io.python.utils.Imports object at ...>
+    <node.ext.python.utils.Imports object at ...>
     
 Add some imports.
 ::
@@ -77,7 +77,7 @@ Update an import.
 Add a Class to module and chack if new imports are added to top of module.
 ::
 
-    >>> from agx.io.python import Class
+    >>> from node.ext.python import Class
     >>> class_ = Class('SomeClass')
     >>> module['someclass'] = class_
     >>> print_source(module())

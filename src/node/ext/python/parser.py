@@ -8,8 +8,8 @@ import types
 import copy
 from odict import odict
 from zope.component import provideHandler
-from agx.io.directory.interfaces import IFileAddedEvent
-from agx.io.python.interfaces import (
+from node.ext.directory.interfaces import IFileAddedEvent
+from node.ext.python.interfaces import (
     CODESECTION_STARTTOKEN,
     CODESECTION_ENDTOKEN,
     Call,
@@ -20,7 +20,7 @@ from agx.io.python.interfaces import (
     IAttribute,
     IDecorator,
 )
-from agx.io.python.nodes import (
+from node.ext.python.nodes import (
     Module,
     Docstring,
     ProtectedSection,

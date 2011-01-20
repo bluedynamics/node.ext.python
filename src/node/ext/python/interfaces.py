@@ -4,7 +4,7 @@
 from zope.interface import Attribute
 from zodict.interfaces import INode
 from zodict.interfaces import ICallableNode
-from agx.io.directory.interfaces import IFile
+from node.ext.directory.interfaces import IFile
 
 CODESECTION_STARTTOKEN = '##code-section '
 CODESECTION_ENDTOKEN = '##/code-section '
