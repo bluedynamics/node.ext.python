@@ -1,11 +1,13 @@
-# Copyright BlueDynamics Alliance - http://bluedynamics.com
-# GNU General Public License Version 2
-
 import os
 from odict import odict
-from zodict.node import Node
+from plumber import plumber
+from node.parts import (
+    Reference,
+    Order,
+)
+from node.utils import LocationIterator
+from node.base import OrderedNode
 from zope.interface import implements
-from zope.location import LocationIterator
 from node.ext.directory.interfaces import IDirectory
 from node.ext.python.interfaces import (
     Incomplete,
@@ -21,7 +23,10 @@ from node.ext.python.interfaces import (
     IBlock,
 )
 
-class PythonNode(Node):
+
+class PythonNode(OrderedNode):
+    __metaclass__ = plumber
+    __plumbing__ = Reference, Order
     
     implements(IPythonNode)
     
@@ -29,7 +34,7 @@ class PythonNode(Node):
     rendererfactory = None
     
     def __init__(self, name, astnode=None, buffer=[]):
-        Node.__init__(self, name)
+        OrderedNode.__init__(self, name)
         self.astnode = astnode
         self.buffer = buffer
         self.bufstart = None
@@ -117,16 +122,16 @@ class PythonNode(Node):
         except Exception, e:
             # happens if node was created manually
             return str(self.__class__) + ': [?:?] - %s' % str(self.nodelevel)
-    
+
+
 class Module(PythonNode):
-    
     implements(IModule)
     
     # flag to turn off parsing on __init__. Needed by test.
     _do_parse = True
     
     def __init__(self, name=None):
-        Node.__init__(self, name)
+        PythonNode.__init__(self, name)
         self.encoding = u'utf-8'
         self.astnode = None
         self.bufstart = None
@@ -157,13 +162,19 @@ class Module(PythonNode):
             raise Incomplete, u"Could not verify file path."
         return os.path.join(*self.path)
     
-    @property
-    def buffer(self):
+    def _get_buffer(self):
         return self._buffer
+    
+    def _set_buffer(self, val):
+        # set by parser directly. XXX
+        pass
+    
+    buffer = property(_get_buffer, _set_buffer)
     
     @property
     def indent(self):
         return 0
+
 
 class _TextMixin(object):
     
@@ -189,8 +200,8 @@ class _TextMixin(object):
     
     text = property(_get_text, _set_text)
 
+
 class Docstring(PythonNode, _TextMixin):
-    
     implements(IDocstring)
     
     def __init__(self, text=None, astnode=None, buffer=[]):
@@ -249,9 +260,9 @@ class Docstring(PythonNode, _TextMixin):
     def _set_bufstart(self, lineno): pass
     
     bufstart = property(_get_bufstart, _set_bufstart)
-        
+
+
 class ProtectedSection(PythonNode, _TextMixin):
-    
     implements(IProtectedSection)
 
     def __init__(self, sectionname=None, buffer=[]):
@@ -285,8 +296,8 @@ class ProtectedSection(PythonNode, _TextMixin):
     
     lines = property(_get_lines, _TextMixin._set_lines)
 
+
 class Block(PythonNode, _TextMixin):
-    
     implements(IBlock)
     
     def __init__(self, text=None, buffer=[]):
@@ -336,8 +347,8 @@ class Block(PythonNode, _TextMixin):
             end -= 1
         return end
 
+
 class Import(PythonNode):
-    
     implements(IImport)
     
     def __init__(self, fromimport=None, names=[], astnode=None, buffer=[]):
@@ -373,8 +384,8 @@ class Import(PythonNode):
             return True
         return False
 
+
 class Attribute(PythonNode):
-    
     implements(IAttribute)
     
     def __init__(self, targets=list(), value=None, astnode=None, buffer=[]):
@@ -396,8 +407,8 @@ class Attribute(PythonNode):
             return True
         return False
 
+
 class Decorator(PythonNode):
-    
     implements(IDecorator)
     
     def __init__(self, decoratorname=None, astnode=None, buffer=[]):
@@ -449,8 +460,8 @@ class Decorator(PythonNode):
             return True
         return False
 
+
 class Function(PythonNode):
-    
     implements(IFunction)
     
     def __init__(self, functionname=None, astnode=None, buffer=[]):
@@ -503,8 +514,8 @@ class Function(PythonNode):
             return True
         return False
 
+
 class Class(PythonNode):
-    
     implements(IClass)
     
     def __init__(self, classname=None, astnode=None, buffer=[]):
