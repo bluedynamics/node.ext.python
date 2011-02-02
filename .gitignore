@@ -5,3 +5,4 @@ src/node/ext/python/tests/data/__init_.py
 src/node/ext/python/tests/data/moved.py
 src/node/ext/python/tests/data/rendered.py
 src/node/ext/python/tests/data/unchanged.py
+src/node/ext/python/tests/data/changed.py
