@@ -2,8 +2,10 @@
 # GNU General Public License Version 2
 
 from zope.interface import Attribute
-from zodict.interfaces import INode
-from zodict.interfaces import ICallableNode
+from node.interfaces import (
+    INode,
+    ICallableNode,
+)
 from node.ext.directory.interfaces import IFile
 
 CODESECTION_STARTTOKEN = '##code-section '
