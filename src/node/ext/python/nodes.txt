@@ -1,8 +1,15 @@
 Python Nodes
 ============
 
-Setup
------
+Test id Directory and Module etc build the correct node index::
+
+    >>> from node.ext.directory import Directory
+    >>> from node.ext.python import Module
+    
+    >>> directory = Directory('/tmp')
+    >>> directory['foo.py'] = Module()
+    >>> len(directory.index._index)
+    2
 
 Define print helper.
 ::
