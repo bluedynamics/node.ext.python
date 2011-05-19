@@ -1063,3 +1063,4 @@ Create ``node.ext.directory.Directory`` instance and test the parsing handler.
       <class 'node.ext.python.nodes.Class'>: [40:43] - 0
         <class 'node.ext.python.nodes.Function'>: [42:43] - 1
           <class 'node.ext.python.nodes.Block'>: [43:43] - 2
+          

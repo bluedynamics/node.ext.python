@@ -64,6 +64,8 @@ class IModule(IFile, IPythonNode):
     
     modulename = Attribute(u"The name of the module.")
     encoding = Attribute(u"The file encoding. Defaults to utf-8")
+    bufoffset = Attribute(u"Number of lines stripped at the top of a "
+                          u"module file")
 
 class IBlock(IPythonNode):
     """Python code block.

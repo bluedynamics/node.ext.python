@@ -107,14 +107,32 @@ class PythonNode(OrderedNode):
         if name is not None:
             attrs = [a for a in attrs if name in a.targets]
         return attrs
+
+    def acquire(self, interface=None):
+        if interface.providedBy(self):
+            return self
+        context = self.__parent__
+        while context and not interface.providedBy(context):
+            context = context.parent
+        return context
     
     @property
     def noderepr(self):
         try:
+            module = self.acquire(IModule)
+            offset = module.bufoffset
             startlineno = self.startlineno
-            startlineno = startlineno is not None and startlineno or '?'
+            if startlineno is not None:
+                startlineno = str(startlineno + offset)
+            else :
+                startlineno = '?'
             endlineno = self.endlineno
-            endlineno = endlineno is not None and endlineno or '?'
+            if endlineno is not None:
+                endlineno = str(endlineno + offset)
+            else :
+                endlineno = '?'
+#            startlineno = startlineno is not None and startlineno+offset or '?'
+#            endlineno = endlineno is not None and endlineno+offset or '?'
             return str(self.__class__) + \
                    ': [%s:%s] - %s' % (str(startlineno),
                                        str(endlineno),
@@ -136,6 +154,7 @@ class Module(PythonNode):
         self.astnode = None
         self.bufstart = None
         self.bufend = None
+        self.bufoffset = 0
         self.readlines = None
         self.parser = self.parserfactory(self)
         try:
@@ -502,6 +521,7 @@ class Function(PythonNode):
     
     @property
     def defendlineno(self):
+#        import pdb;pdb.set_trace()
         bufno = self.bufstart
         while not self.parser._definitionends(bufno):
             bufno += 1
@@ -529,6 +549,7 @@ class Class(PythonNode):
     
     @property
     def defendlineno(self):
+#        import pdb;pdb.set_trace() # @@@ Gogo.
         bufno = self.bufstart
         while not self.parser._definitionends(bufno):
             bufno += 1

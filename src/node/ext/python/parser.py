@@ -6,6 +6,7 @@ import _ast
 import ast
 import types
 import copy
+import exceptions
 from odict import odict
 from zope.component import provideHandler
 from node.ext.directory.interfaces import IFileAddedEvent
@@ -47,6 +48,7 @@ class BaseParser(object):
     def __call__(self):
         raise NotImplemented(u'BaseParser does not implement ``__call__``')
 
+#    def _createastchild(self, astnode, endlineno):
     def _createastchild(self, astnode):
         if hasattr(astnode, 'lineno'):
             if astnode.lineno - 1 in self.model.readlines:
@@ -212,18 +214,40 @@ class ModuleParser(BaseParser):
     
     def _parse(self):
         file = open(self.model.filepath, 'r')
-        self.model._buffer = file.readlines()
+        cont = file.read()
+        # Leading and trailing blank lines cause problems in the builtin 
+        # "compile" function, so we strip them. In order to provide correct 
+        # line numbers we store the offset - we use in case of an Exception...
+        before = len(cont.split(os.linesep))
+        cont = cont.lstrip()
+        after = len(cont.split(os.linesep))
+        cont = cont.rstrip()
+        self.model._buffer = cont.split(os.linesep)
+        offset = before - after
         file.close()
         self.model.readlines = list()
         self._extractencoding()
         self.model.bufstart = 0
         self.model.bufend = len(self.model._buffer)
-        self.model.astnode = ast.parse(''.join(self.model.buffer))
-        self.model._buffer = [unicode(l.strip('\n')) \
-                              for l in self.model._buffer]
+        self.model.bufoffset = offset
+        try:
+            self.model.astnode = ast.parse(os.linesep.join(self.model.buffer).strip(), self.model.filepath)
+        except SyntaxError, e:
+            # Since the python source files are being stripped we have to
+            # add an offset to the line number we get thrown from compile()
+            ex = exceptions.SyntaxError((e[0], \
+                (e[1][0], e[1][1] + offset, e[1][2], e[1][3]))) 
+                # <- don't read that
+            raise ex
+        except TypeError, e:
+            # We don't have to modify TypeErrors since they don't contain
+            # line numbers.
+            raise e
         children = self._protectedsections()
         for node in children:
             self._marklines(*range(node.bufstart, node.bufend))
+        # for i in xrange(len(self.model.astnode.body)):
+        #     astnode = self.model.astnode.body
         for astnode in self.model.astnode.body:
             self._createastchild(astnode)
         self._markastrelated(self.model)
