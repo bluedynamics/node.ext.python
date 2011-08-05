@@ -269,7 +269,7 @@ class GoParser(object):
         """ Reads the input file, parses it and 
             calls a generator method on each node.
         """
-        astt = ast.parse(self.source, filename)
+        astt = ast.parse(self.source, self.filename)
         self.lines = ['']+self.lines
         self.walk(None, astt.body, 1, self.endline, 0)
         

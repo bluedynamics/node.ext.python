@@ -13,11 +13,12 @@ optionflags = doctest.NORMALIZE_WHITESPACE | \
               doctest.REPORT_ONLY_FIRST_FAILURE
 
 TESTFILES = [
-#    '../renderer.txt',
-#    '../parser.txt',
+    '../renderer.txt',
+    '../parser.txt',
+    '../goparser.txt',
     '../edgecases.txt',
-#    '../nodes.txt',
-#    '../utils.txt',
+    '../nodes.txt',
+    '../utils.txt',
 ]
 
 datadir = os.path.join(os.path.dirname(__file__), 'data')
