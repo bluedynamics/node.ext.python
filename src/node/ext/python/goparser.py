@@ -29,6 +29,7 @@ class metanode(object):
         self.parent = parent
         self.children = []
         self.astnode = astnode
+        self.astclassname = astnode.__class__.__name__
         self.sourcelines = sourcelines
         self.startline = startline
         self.endline = endline
@@ -42,7 +43,7 @@ class metanode(object):
     def get_sourcelines(self):
         """ Returns the lines of code assiciated with the node
         """
-        return self.sourcelines[self.startline, self.endline+1]
+        return self.sourcelines[self.startline: self.endline+1]
         
     def strip_comments(self, sourceline):
         """ Returns a line without comments, rstripped
@@ -188,6 +189,7 @@ class GoParser(object):
         self.filename = filename
         self.removeblanks()
         self.nodes = []
+        self.encoding = None
         
     def walk(self, parent, nodes, start, end, ind):
         """ Iterates nodes of the abstract syntax tree
@@ -265,13 +267,25 @@ class GoParser(object):
         self.offset = (before - after)
         self.endline = len(self.lines)
         
-    def parsegen(self):
+    def __call__(self):
         """ Reads the input file, parses it and 
             calls a generator method on each node.
         """
+        self.encoding = self.get_encoding()
         astt = ast.parse(self.source, self.filename)
         self.lines = ['']+self.lines
         self.walk(None, astt.body, 1, self.endline, 0)
+        self.lines = self.lines[1:]
+        
+    def get_encoding(self):
+        """ Gets encoding from source code.
+        """
+        encs = re.findall("^# -\*-\ coding:\ (.*?)\ -\*-", self.source)
+        if len(encs) == 1:
+            return unicode(encs[0])
+        else:
+            return u'utf-8'
+
         
 def main(filename):
     """ The module can be called with a filename of a python file for testing
@@ -281,7 +295,7 @@ def main(filename):
     fileinst.close()
     
     P = GoParser(source, filename)
-    P.parsegen()
+    P()
     
     print repr(P.nodes)
 #    import pdb;pdb.set_trace()

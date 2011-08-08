@@ -1,0 +1,80 @@
+Python Parser
+=============
+
+::
+
+    >>> import os
+    >>> modulepath = os.path.join(datadir, 'parseme.py')
+    >>> from node.ext.python.gofactory import BaseParser
+    >>> class testmodel(object):
+    ...     def __init__(self, modulepath):
+    ...         self.filepath = modulepath
+    >>> model = testmodel(modulepath)
+    >>> BP = BaseParser(model)
+    >>> BP()
+    --- 0 (0) Expr (5-8) (parent: None)
+    005:"""This file is used as test source for python nodes.
+    006:
+    007:The code itself does nothing useful and is not executable.
+    008:"""
+    ...
+    
+    >>> module = BP.module
+    >>> module.modulename
+    u'parseme'
+
+    >>> module.encoding
+    u'utf-8'
+
+    >>> module.lines
+    ['# -*- coding: utf-8 -*-', 
+    ...]
+
+    >>> module.printtree()
+    <class 'node.ext.python.gofactory.Module'>: [1:194] - -1
+      <class 'node.ext.python.gofactory.Docstring'>: [5:8] - 0
+      <class 'node.ext.python.gofactory.Docstring'>: [10:10] - 0
+      <class 'node.ext.python.gofactory.Import'>: [12:12] - 0
+      <class 'node.ext.python.gofactory.Import'>: [13:13] - 0
+      <class 'node.ext.python.gofactory.Import'>: [14:14] - 0
+      <class 'node.ext.python.gofactory.Import'>: [15:15] - 0
+      <class 'node.ext.python.gofactory.Import'>: [16:16] - 0
+      <class 'node.ext.python.gofactory.Function'>: [81:82] - 0
+      <class 'node.ext.python.gofactory.Attribute'>: [86:86] - 0
+      <class 'node.ext.python.gofactory.Attribute'>: [88:88] - 0
+      <class 'node.ext.python.gofactory.Attribute'>: [90:92] - 0
+      <class 'node.ext.python.gofactory.Attribute'>: [94:99] - 0
+      <class 'node.ext.python.gofactory.Attribute'>: [101:103] - 0
+      <class 'node.ext.python.gofactory.Attribute'>: [105:105] - 0
+      <class 'node.ext.python.gofactory.Attribute'>: [107:107] - 0
+      <class 'node.ext.python.gofactory.Attribute'>: [109:109] - 0
+      <class 'node.ext.python.gofactory.Function'>: [115:116] - 0
+        <class 'node.ext.python.gofactory.Decorator'>: [114:114] - 0
+      <class 'node.ext.python.gofactory.Function'>: [122:125] - 0
+      <class 'node.ext.python.gofactory.Class'>: [127:144] - 0
+        <class 'node.ext.python.gofactory.Docstring'>: [128:129] - 1
+        <class 'node.ext.python.gofactory.Attribute'>: [131:131] - 1
+        <class 'node.ext.python.gofactory.Attribute'>: [132:132] - 1
+        <class 'node.ext.python.gofactory.Function'>: [137:140] - 1
+          <class 'node.ext.python.gofactory.Docstring'>: [138:139] - 2
+        <class 'node.ext.python.gofactory.Function'>: [143:144] - 1
+          <class 'node.ext.python.gofactory.Decorator'>: [142:142] - 1
+      <class 'node.ext.python.gofactory.Class'>: [146:160] - 0
+        <class 'node.ext.python.gofactory.Docstring'>: [147:148] - 1
+        <class 'node.ext.python.gofactory.Function'>: [157:160] - 1
+          <class 'node.ext.python.gofactory.Docstring'>: [158:159] - 2
+      <class 'node.ext.python.gofactory.Class'>: [162:165] - 0
+        <class 'node.ext.python.gofactory.Docstring'>: [164:165] - 1
+      <class 'node.ext.python.gofactory.Function'>: [170:171] - 0
+        <class 'node.ext.python.gofactory.Decorator'>: [167:167] - 0
+        <class 'node.ext.python.gofactory.Decorator'>: [168:168] - 0
+        <class 'node.ext.python.gofactory.Decorator'>: [169:169] - 0
+      <class 'node.ext.python.gofactory.Function'>: [176:177] - 0
+        <class 'node.ext.python.gofactory.Decorator'>: [173:175] - 0
+      <class 'node.ext.python.gofactory.Import'>: [179:180] - 0
+      <class 'node.ext.python.gofactory.Import'>: [182:185] - 0
+      <class 'node.ext.python.gofactory.Import'>: [187:187] - 0
+      <class 'node.ext.python.gofactory.Function'>: [189:194] - 0
+        <class 'node.ext.python.gofactory.Docstring'>: [190:191] - 1
+
+    >>> #import pdb;pdb.set_trace()

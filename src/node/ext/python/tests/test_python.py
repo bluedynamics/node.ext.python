@@ -16,6 +16,7 @@ TESTFILES = [
     '../renderer.txt',
     '../parser.txt',
     '../goparser.txt',
+    '../gofactory.txt',
     '../edgecases.txt',
     '../nodes.txt',
     '../utils.txt',

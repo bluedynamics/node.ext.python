@@ -10,7 +10,7 @@ Python Parser
     >>> source = fileinst.read()
     >>> fileinst.close()
     >>> myparser = GoParser(source, modulepath)
-    >>> myparser.parsegen()
+    >>> myparser()
     --- 0 (0) Expr (5-8) (parent: None)
     005:"""This file is used as test source for python nodes.
     006:
