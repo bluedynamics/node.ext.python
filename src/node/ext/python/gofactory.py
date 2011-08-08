@@ -6,6 +6,7 @@
 
 
 import os
+import copy
 from zope.interface import implements
 from node.base import OrderedNode
 from node.utils import LocationIterator
@@ -62,7 +63,7 @@ class PythonNode(OrderedNode):
             # Start line number of python Node.
             startlineno = gometanode.startline
             # End line number of python Node.
-            endlineno = gometanode.startline
+            endlineno = gometanode.endline
             # Indent level of buffer[bufstart:bufend].
             self.indent = gometanode.indent
             buffer = gometanode.sourcelines
@@ -231,27 +232,13 @@ class Attribute(PythonNode):
 class Decorator(PythonNode):
     implements(IDecorator)
     
-    def __init__(self, decoratorname=None, astnode=None, buffer=[]):
-        PythonNode.__init__(self, None, astnode, buffer)
-        
-        
-        
-        
-        import pdb;pdb.set_trace ()
-        self.decoratorname = astnode.func.id
-
-        # ???
-        self.model._args_orgin = copy.deepcopy(self.model.args)
-        self.model._kwargs_orgin = copy.deepcopy(self.model.kwargs)
-
-        
-        self.args = list()
-        self.kwargs = odict()
-        self.s_args = None
-        self.s_kwargs = None
+    def __init__(self, decoratorname=None, gometanode=None, buffer=[]):
+        PythonNode.__init__(self, None, gometanode=gometanode, buffer=buffer)
+        if decoratorname == None:
+            decoratorname = astnode.func.id
         self.decoratorname = decoratorname
-        self._args_orgin = list()
-        self._kwargs_orgin = odict()
+        self.args = copy.deepcopy(gometanode.astnode.args)
+        self.kwargs = copy.deepcopy(gometanode.astnode.kwargs)
 
 class Function(PythonNode):
     implements(IFunction)
@@ -337,8 +324,6 @@ class DocstringNodeMaker(NodeMaker):
         node = Docstring( \
                 name = str(gometanode), 
                 gometanode = gometanode, 
-#                lines = gometanode.get_sourcelines(),
-#                buffer = sourcelines,
                 )
         return node
         
@@ -368,7 +353,10 @@ class AttributeNodeMaker(NodeMaker):
 class DecoratorNodeMaker(NodeMaker):
     
     def __call__(self, gometanode):
-        pass
+        node = Decorator(\
+                decoratorname=gometanode.astnode.func.id,
+                gometanode = gometanode)
+        return node
         
 class FunctionNodeMaker(NodeMaker):
     
@@ -377,8 +365,10 @@ class FunctionNodeMaker(NodeMaker):
         node = Function(\
                 functionname=gometanode.astnode.name, 
                 gometanode=gometanode, 
-#                buffer=sourcelines,
                 )
+        for child in node.gometanode.children:
+            subnode = self.makesubnode(child)
+            node[subnode.uuid] = subnode
         return node
         
 class ClassNodeMaker(NodeMaker):
@@ -388,7 +378,6 @@ class ClassNodeMaker(NodeMaker):
         node = Class(\
                 classname=gometanode.astnode.name, 
                 gometanode=gometanode, 
-#                buffer=sourcelines,
                 )
         for child in gometanode.children:
             subnode = self.makesubnode(child)
