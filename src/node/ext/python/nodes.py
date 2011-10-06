@@ -17,6 +17,7 @@ from node.ext.python.interfaces import (
     IProtectedSection,
     IImport,
     IAttribute,
+    ICallableArguments,
     IDecorator,
     IFunction,
     IClass,
@@ -427,7 +428,10 @@ class Attribute(PythonNode):
         return False
 
 
-class ArgumentsMixin(object):
+class CallableArguments(object):
+    implements(ICallableArguments)
+    
+    UNSET = object()
     
     def __init__(self):
         self.args = list()
@@ -452,20 +456,40 @@ class ArgumentsMixin(object):
         else:
             _kwargs = self.kwargs
         return _args, _kwargs
+    
+    def arguments_equal(self, other):
+        a_args, a_kwargs = self.extract_arguments()
+        b_args, b_kwargs = other.extract_arguments()
+        if len(a_args) != len(b_args) or len(a_kwargs) != len(b_kwargs):
+            return False
+        for arg in a_args:
+            if not arg in b_args:
+                return False
+        for key, value in a_kwargs.items():
+            b_val = b_kwargs.get(key, self.UNSET)
+            if b_val is self.UNSET or b_val != value:
+                return False
+        return True
 
 
-class Decorator(PythonNode, ArgumentsMixin):
+class Decorator(PythonNode, CallableArguments):
     implements(IDecorator)
     
     def __init__(self, decoratorname=None, astnode=None, buffer=[]):
         PythonNode.__init__(self, None, astnode, buffer)
-        ArgumentsMixin.__init__(self)
+        CallableArguments.__init__(self)
         self.decoratorname = decoratorname
         self._args_orgin = list()
         self._kwargs_orgin = odict()
         self.parser = self.parserfactory(self)
         if astnode is not None:
             self.parser()
+    
+    def equals(self, other):
+        if self.decoratorname == other.decoratorname \
+          and self.arguments_equal(other):
+            return True
+        return False
     
     @property
     def nodelevel(self):
@@ -504,12 +528,12 @@ class Decorator(PythonNode, ArgumentsMixin):
         return False
 
 
-class Function(PythonNode, ArgumentsMixin):
+class Function(PythonNode, CallableArguments):
     implements(IFunction)
     
     def __init__(self, functionname=None, astnode=None, buffer=[]):
         PythonNode.__init__(self, None, astnode, buffer)
-        ArgumentsMixin.__init__(self)
+        CallableArguments.__init__(self)
         self._decorators = list()
         self.functionname = functionname
         self._args_orgin = list()
