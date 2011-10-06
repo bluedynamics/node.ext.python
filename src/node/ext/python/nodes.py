@@ -487,6 +487,8 @@ class Function(PythonNode):
         PythonNode.__init__(self, None, astnode, buffer)
         self.args = list()
         self.kwargs = odict()
+        self.s_args = None
+        self.s_kwargs = None
         self._decorators = list()
         self.functionname = functionname
         self._args_orgin = list()

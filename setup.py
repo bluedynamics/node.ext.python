@@ -6,7 +6,7 @@ import sys, os
 
 version = '1.0'
 shortdesc ="Python Input/Output"
-longdesc = open(os.path.join(os.path.dirname(__file__), 'README.txt')).read()
+longdesc = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
 
 setup(name='node.ext.python',
       version=version,
