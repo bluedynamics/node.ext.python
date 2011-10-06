@@ -456,6 +456,35 @@ Tests ``render_arguments`` function::
     u'                              foo=callsomelongnamefunction(),', 
     u'                              bar=[1, 2, 3, 4, 5]']
 
+Test ``resolve_arguments``::
+
+    >>> class ArgKwargProviding(object):
+    ...     args = []
+    ...     kwargs = {}
+    ...     s_args = None
+    ...     s_kwargs = None
+    
+    >>> model = ArgKwargProviding()
+    >>> ar = ArgumentRenderer(model)
+    >>> ar.extract_arguments()
+    ([], {})
+    
+    >>> model.args = ['a', 'b']
+    >>> ar.extract_arguments()
+    (['a', 'b'], {})
+    
+    >>> model.kwargs = {'c': 1, 'd': 2}
+    >>> ar.extract_arguments()
+    (['a', 'b'], {'c': 1, 'd': 2})
+    
+    >>> model.s_args = 'x, y'
+    >>> ar.extract_arguments()
+    (['x', 'y'], {'c': 1, 'd': 2})
+    
+    >>> model.s_kwargs = 'z=dict(foo=bar)'
+    >>> ar.extract_arguments()
+    (['x', 'y'], odict([('z', 'dict(foo=bar)')]))
+
 Check Decorator::
 
     >>> Decorator()()

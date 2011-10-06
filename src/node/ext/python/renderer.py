@@ -181,7 +181,8 @@ class ArgumentRenderer(object):
 
     LIMIT = 80
     
-    def __init__(self):
+    def __init__(self, model=None):
+        self.model = model
         self._startlen_exeeds = False
         self._arglines = None
         self._startlen = None
@@ -204,6 +205,24 @@ class ArgumentRenderer(object):
         args = [self.render_arg(a) for a in call['args']]
         kwargs = [self.render_kwarg(kw, a) for kw, a in call['kwargs'].items()]
         return '%s%s)' % (ret, ', '.join(args + kwargs))
+    
+    def extract_arguments(self):
+        if self.model.s_args:
+            _args = self.model.s_args.split(',')
+            _args = [_arg.strip() for _arg in _args]
+        else:
+            _args = self.model.args
+        if self.model.s_kwargs:
+            add_args = self.model.s_kwargs.split(',')
+            add_args = [_kwarg.strip() for _kwarg in add_args]
+            _kwargs = odict()
+            for _kwarg in add_args:
+                key = _kwarg[:_kwarg.find('=')]
+                val = _kwarg[_kwarg.find('=') + 1:]
+                _kwargs[key] = val
+        else:
+            _kwargs = self.model.kwargs
+        return _args, _kwargs
     
     def render_arguments(self, indent, baselen, args=[], kwargs=odict()):
         self._arglines = list()
@@ -273,8 +292,7 @@ class ArgumentRenderer(object):
 class DecoratorRenderer(BaseRenderer, ArgumentRenderer):
     
     def __init__(self, model):
-        ArgumentRenderer.__init__(self)
-        self.model = model
+        ArgumentRenderer.__init__(self, model)
     
     def __call__(self):
         if self.model.decoratorname is None:
@@ -287,18 +305,7 @@ class DecoratorRenderer(BaseRenderer, ArgumentRenderer):
             return u'%s\n' % u'\n'.join(lines)
         name = self.model.decoratorname
         level = self.model.nodelevel
-        if self.model.s_args:
-            d_args = self.model.s_args.split(',')
-            d_args = [d_arg.strip() for d_arg in d_args]
-        else:
-            d_args = self.model.args
-        if self.model.s_kwargs:
-            add_args = self.model.s_kwargs.split(',')
-            add_args = [d_arg.strip() for d_arg in add_args]
-            d_args += add_args
-            d_kwargs = dict()
-        else:
-            d_kwargs = self.model.kwargs
+        d_args, d_kwargs = self.extract_arguments()
         if d_args or d_kwargs.keys():
             rendered_args = self.render_arguments(level, len(name) + 2,
                                                   d_args, d_kwargs)
@@ -308,8 +315,7 @@ class DecoratorRenderer(BaseRenderer, ArgumentRenderer):
 class FunctionRenderer(BaseRenderer, ArgumentRenderer):
     
     def __init__(self, model):
-        ArgumentRenderer.__init__(self)
-        self.model = model
+        ArgumentRenderer.__init__(self, model)
     
     def __call__(self):
         if self.model.functionname is None:
@@ -319,8 +325,7 @@ class FunctionRenderer(BaseRenderer, ArgumentRenderer):
             ret.append(decorator())
         name = self.model.functionname
         level = self.model.nodelevel
-        args = self.model.args
-        kwargs = self.model.kwargs
+        args, kwargs = self.extract_arguments()
         indent = level * 4 * u' '
         base_str = u'def %s(' % name
         rfunc = u'%s%s' % (indent, base_str)

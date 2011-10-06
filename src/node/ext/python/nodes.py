@@ -523,7 +523,6 @@ class Function(PythonNode):
     
     @property
     def defendlineno(self):
-#        import pdb;pdb.set_trace()
         bufno = self.bufstart
         while not self.parser._definitionends(bufno):
             bufno += 1
@@ -531,6 +530,10 @@ class Function(PythonNode):
     
     @property
     def _changed(self):
+        if self.astnode is None:
+            return True
+        if self.s_args or self.s_kwargs:
+            return True
         if self.args != self._args_orgin \
           or self.kwargs != self._kwargs_orgin:
             return True
