@@ -1,5 +1,5 @@
-Here we deal with some more cryptic stuff and edge cases
-::
+Here we deal with some more cryptic stuff and edge cases::
+
     >>> import os
     >>> modulepath = os.path.join(datadir, 'edgecases.py')    
     >>> from node.ext.python import Module

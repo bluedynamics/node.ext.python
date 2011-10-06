@@ -1,8 +1,7 @@
 node.ext.python.utils
-===================
+=====================
 
-Define print helper.
-::
+Define print helper::
 
     >>> def print_source(source):
     ...     for line in source.split('\n'):
@@ -11,8 +10,7 @@ Define print helper.
 
 The Imports helper class.
 
-Its context must be an IModule implemenation.
-::
+Its context must be an IModule implemenation::
 
     >>> from node.ext.python.utils import Imports
     >>> imp = Imports(object())
@@ -27,8 +25,7 @@ Its context must be an IModule implemenation.
     >>> imp
     <node.ext.python.utils.Imports object at ...>
     
-Add some imports.
-::
+Add some imports::
 
     >>> imp.set()
     Traceback (most recent call last):
@@ -48,8 +45,7 @@ Add some imports.
     from bar import baz
     EOF
 
-Add another import for fromimport.
-::
+Add another import for fromimport::
 
     >>> imp.set(fromimport='bar', names=[['abc', None]])
     >>> print_source(module())
@@ -61,8 +57,7 @@ Add another import for fromimport.
     )
     EOF
 
-Update an import.
-::
+Update an import::
 
     >>> imp.set(fromimport='bar', names=[['abc', 'lalala']])
     >>> print_source(module())
@@ -74,8 +69,7 @@ Update an import.
     )
     EOF
 
-Add a Class to module and chack if new imports are added to top of module.
-::
+Add a Class to module and chack if new imports are added to top of module::
 
     >>> from node.ext.python import Class
     >>> class_ = Class('SomeClass')

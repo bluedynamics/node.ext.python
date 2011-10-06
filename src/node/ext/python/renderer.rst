@@ -4,29 +4,25 @@ Python Renderers
 Setup
 -----
 
-Set up a test environment.
-::
+Set up a test environment::
 
     >>> import os
     >>> path = os.path.join(datadir, 'rendered.py')
 
-Remove the generated file created by previous test run.
-::
+Remove the generated file created by previous test run::
 
     >>> try:
     ...     os.remove(path)
     ... except Exception: pass
 
-Define print helper.
-::
+Define print helper::
 
     >>> def print_source(source):
     ...     for line in source.split('\n'):
     ...         print line
     ...     print 'EOF'
 
-Required imports.
-::
+Required imports::
 
     >>> from node.ext.python import (
     ...     Module,
@@ -40,16 +36,14 @@ Required imports.
     ...     Block,
     ... )
 
-Check Module.
-::
+Check Module::
   
     >>> module = Module(path)
     >>> module.rendererfactory._write_file = False
     >>> module()
     u'# -*- coding: utf-8 -*-'
 
-Check Docstring.
-::
+Check Docstring::
   
     >>> docstring = Docstring()
     >>> print_source(docstring())
@@ -90,8 +84,7 @@ Check Docstring.
     <BLANKLINE>
     EOF
 
-Add docstring to module and render.
-::
+Add docstring to module and render::
 
     >>> module['docstring-1'] = docstring
     >>> print_source(module())
@@ -102,8 +95,7 @@ Add docstring to module and render.
     """
     EOF
     
-Check ProtectedSection.
-::
+Check ProtectedSection::
   
     >>> ProtectedSection()()
     Traceback (most recent call last):
@@ -146,8 +138,7 @@ Check ProtectedSection.
     <BLANKLINE>
     EOF
 
-Add protected section to module and render.
-::
+Add protected section to module and render::
 
     >>> module['section-1'] = sec
     >>> print_source(module())
@@ -161,8 +152,7 @@ Add protected section to module and render.
     ##/code-section section-1
     EOF
 
-Check Block.
-::
+Check Block::
 
     >>> block = Block()
     >>> block()
@@ -195,8 +185,7 @@ Check Block.
     <BLANKLINE>
     EOF
 
-Add block to module and render.
-::
+Add block to module and render::
 
     >>> module['block-1'] = block
     >>> print_source(module())
@@ -213,8 +202,7 @@ Add block to module and render.
         foo = 0
     EOF
 
-Check Attribute.
-::
+Check Attribute::
 
     >>> Attribute()()
     Traceback (most recent call last):
@@ -231,8 +219,7 @@ Check Attribute.
     <BLANKLINE>
     EOF
 
-Add attribute to module and render.
-::
+Add attribute to module and render::
 
     >>> module['attribute-1'] = attribute
     >>> print_source(module())
@@ -254,8 +241,7 @@ Add attribute to module and render.
     }
     EOF
 
-Check Import.
-::
+Check Import::
 
     >>> Import()()
     Traceback (most recent call last):
@@ -313,8 +299,7 @@ Check Import.
     <BLANKLINE>
     EOF
 
-Add import to module and render.
-::
+Add import to module and render::
 
     >>> module['import-1'] = import_
     >>> print_source(module())
@@ -340,8 +325,7 @@ Add import to module and render.
     
 Check ArgumentRenderer Mixin class.
 
-The ``render_arg`` and ``render_kwarg`` functions.
-::
+The ``render_arg`` and ``render_kwarg`` functions::
 
     >>> from node.ext.python.renderer import ArgumentRenderer
     >>> ar = ArgumentRenderer()
@@ -370,8 +354,7 @@ The ``render_arg`` and ``render_kwarg`` functions.
     u'SomeObj(1, 2, 3, foo="bar")'
 
 Check if internal ``_startlen_exeeds``, ``_startlen``, and ``_defaultlen``
-attributes are calculated properly.
-:: 
+attributes are calculated properly:: 
 
     >>> dummy = ar.render_arguments(0, 78, ['a'])
     >>> ar._startlen_exeeds
@@ -431,8 +414,7 @@ attributes are calculated properly.
     >>> ar._arglines
     ['a']
 
-Some tests on internal ``_resolve_arglines`` function.
-::
+Some tests on internal ``_resolve_arglines`` function::
 
     >>> dummy = ar.render_arguments(18, 1)
     >>> ar._arglines = list()
@@ -459,8 +441,7 @@ Some tests on internal ``_resolve_arglines`` function.
     u'                    66666666, 77777777', 
     u'                    88888888, 99999999']
 
-Tests ``render_arguments`` function.
-::
+Tests ``render_arguments`` function::
 
     >>> kwargs = {
     ... 'foo': 'callsomelongnamefunction()',
@@ -475,8 +456,7 @@ Tests ``render_arguments`` function.
     u'                              foo=callsomelongnamefunction(),', 
     u'                              bar=[1, 2, 3, 4, 5]']
 
-Check Decorator.
-::
+Check Decorator::
 
     >>> Decorator()()
     Traceback (most recent call last):
@@ -539,8 +519,7 @@ Check Decorator.
     <BLANKLINE>
     EOF
 
-Check Function.
-::
+Check Function::
 
     >>> Function()()
     Traceback (most recent call last):
@@ -579,8 +558,7 @@ Check Function.
     <BLANKLINE>
     EOF
     
-Add decorator to function.
-::
+Add decorator to function::
 
     >>> dec.args = []
     >>> dec.kwargs = {}
@@ -600,8 +578,7 @@ Add decorator to function.
     <BLANKLINE>
     EOF
 
-Check Class.
-::
+Check Class::
 
     >>> Class()()
     Traceback (most recent call last):
@@ -642,8 +619,7 @@ Check Class.
     >>> class_.bases = ['Foo', 'Bar']
     
 Add function to class. Take a look at the function output, ``self`` is added to
-arguments transparently.
-::
+arguments transparently::
 
     >>> class_['function-1'] = func
     >>> print_source(class_())
@@ -655,8 +631,7 @@ arguments transparently.
     <BLANKLINE>
     EOF
 
-Insert docstring before function. Newline behaves different.
-::
+Insert docstring before function. Newline behaves different::
 
     >>> doc = Docstring()
     >>> doc.__name__ = 'docstring-1'
@@ -673,8 +648,7 @@ Insert docstring before function. Newline behaves different.
     <BLANKLINE>
     EOF
 
-Insert Attributes before function.
-::
+Insert Attributes before function::
 
     >>> attr = Attribute()
     >>> attr.__name__ = u'attr-1'
@@ -719,8 +693,7 @@ Insert Attributes before function.
     <BLANKLINE>
     EOF
 
-Add Block to function.
-::
+Add Block to function::
 
     >>> block = Block()
     >>> block.lines = [
@@ -746,7 +719,7 @@ Add Block to function.
     <BLANKLINE>
     EOF
     
-Add Docstring to function
+Add Docstring to function::
 
     >>> doc = Docstring()
     >>> doc.__name__ = 'doc-1'
@@ -763,7 +736,7 @@ Add Docstring to function
     <BLANKLINE>
     EOF
 
-Add class to module and render.
+Add class to module and render::
 
     >>> module['class-1'] = class_
     >>> print_source(module())
@@ -805,8 +778,7 @@ Add class to module and render.
                 bar
     EOF
 
-Add another class.
-::
+Add another class::
 
     >>> class_ = Class()
     >>> class_.classname = u'OtherClass'
@@ -858,16 +830,14 @@ Add another class.
             pass
     EOF
 
-Write file to datadir.
-::
+Write file to datadir::
 
     >>> module.rendererfactory._write_file = True
     >>> module.__name__ = path
     >>> module()
 
 Add common namespace package ``__init__.py``. We use a corrupted filename to
-avoid the data dir to be a real python package.
-::
+avoid the data dir to be a real python package::
 
     >>> try:
     ...     os.remove('%s/__init_.py' % datadir)

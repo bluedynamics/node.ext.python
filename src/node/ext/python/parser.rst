@@ -5,8 +5,7 @@ Setup
 -----
 
 Set up a test environment. Create a temporary directory and copy 
-``parseme.py`` file into it.
-::
+``parseme.py`` file into it::
 
     >>> import os
     >>> modulepath = os.path.join(datadir, 'parseme.py')
@@ -15,26 +14,22 @@ Test parsing
 ------------
 
 Create a ``Module``. ``name`` is the abspath of the destination Python file, if
-it already exists, read and parse it.
-::
+it already exists, read and parse it::
 
     >>> from node.ext.python import Module
 
-Disable auto parsing.
-::
+Disable auto parsing::
 
     >>> Module._do_parse = False
   
-Factor ``Module``.
-::
+Factor ``Module``::
 
     >>> module = Module(modulepath)
     >>> module
     <Module object '.../parseme.py' at ...>
   
 Now simulate the contents of ``Module._parse()`` and check the results. Read
-the existing file and write to ``Module._buffer``.
-::
+the existing file and write to ``Module._buffer``::
 
     >>> file = open(module.filepath, 'r')
     >>> module._buffer = file.readlines()
@@ -43,47 +38,40 @@ the existing file and write to ``Module._buffer``.
     ['# -*- coding: utf-8 -*-\n', 
     ...]
 
-Extract the module name.
-::
+Extract the module name::
 
     >>> module.readlines = list()
     >>> module.modulename
     u'parseme'
 
-Extract file encoding.
-::
+Extract file encoding::
 
     >>> module.parser._extractencoding()
     >>> module.encoding
     u'utf-8'
 
-Set pointer Attributes on module.
-::
+Set pointer Attributes on module::
 
     >>> module.bufstart = 0
     >>> module.bufend = len(module._buffer)
 
-Parse the abstract syntax tree.
-::
+Parse the abstract syntax tree::
   
     >>> import ast
     >>> module.astnode = ast.parse(''.join(module.buffer))
 
-Convert ``Module._buffer`` to ``unicode`` and strip new lines.
-::
+Convert ``Module._buffer`` to ``unicode`` and strip new lines::
 
     >>> module._buffer = [unicode(l.strip('\n')) \
     ...                   for l in module._buffer]
 
-Parse ``ProtectedSection`` objects from ``PythonNode.buffer``.
-::
+Parse ``ProtectedSection`` objects from ``PythonNode.buffer``::
 
     >>> sections = module.parser._protectedsections()
     >>> for node in sections:
     ...     module.parser._marklines(*range(node.bufstart, node.bufend))
 
-Hook ast children.
-::
+Hook ast children::
 
     >>> for astnode in module.astnode.body:
     ...     module.parser._createastchild(astnode)
@@ -136,14 +124,12 @@ Hook ast children.
       <class 'node.ext.python.nodes.Function'>: [189:194] - 0
         <class 'node.ext.python.nodes.Docstring'>: [190:191] - 1
 
-Parse Code Blocks and hook children.
-::
+Parse Code Blocks and hook children::
 
     >>> children = sections + module.parser._parsecodeblocks()
     >>> module.parser._hookchildren(children)
 
-Check pointers of ``ProtectedSection``. Case filled.
-::
+Check pointers of ``ProtectedSection``. Case filled::
   
     >>> sec = sections[0]
     >>> sec.buffer[sec.bufstart:sec.bufend]
@@ -153,8 +139,7 @@ Check pointers of ``ProtectedSection``. Case filled.
     >>> sec.bufstart, sec.bufend, sec.startlineno, sec.endlineno, sec.indent
     (117, 120, 118, 120, 0)
 
-Check pointers of ``ProtectedSection``. Case empty.
-::
+Check pointers of ``ProtectedSection``. Case empty::
 
     >>> sec = sections[1]
     >>> sec.buffer[sec.bufstart:sec.bufend]
@@ -163,8 +148,7 @@ Check pointers of ``ProtectedSection``. Case empty.
     >>> sec.bufstart, sec.bufend, sec.startlineno, sec.endlineno, sec.indent
     (133, 135, 134, 135, 1)
 
-Check ``Import.parser._definitionends`` method.
-::
+Check ``Import.parser._definitionends`` method::
 
     >>> from node.ext.python import Import
     >>> import_ = Import(buffer=module.buffer)
@@ -194,8 +178,7 @@ Check ``Import.parser._definitionends`` method.
     >>> import_.parser._definitionends(184)
     True
 
-Check ``Decorator.parser._definitionends`` method.
-::
+Check ``Decorator.parser._definitionends`` method::
 
     >>> from node.ext.python import Decorator
     >>> decorator = Decorator(buffer=module.buffer)
@@ -221,8 +204,7 @@ Check ``Decorator.parser._definitionends`` method.
     >>> decorator.parser._definitionends(174)
     True
 
-Check ``Function.parser._definitionends`` method.
-::
+Check ``Function.parser._definitionends`` method::
 
     >>> from node.ext.python import Function
     >>> func = Function(buffer=module.buffer)
@@ -244,8 +226,7 @@ Check ``Function.parser._definitionends`` method.
     >>> func.parser._definitionends(123)
     True
 
-Check ``Class.parser._definitionends`` method.
-::
+Check ``Class.parser._definitionends`` method::
 
     >>> from node.ext.python import Class
     >>> class_ = Class(buffer=module.buffer)
@@ -267,8 +248,7 @@ Check ``Class.parser._definitionends`` method.
     >>> class_.parser._definitionends(162)
     True
 
-Check pointers of ``Import``. Case one-liner.
-::
+Check pointers of ``Import``. Case one-liner::
 
     >>> from node.ext.python.interfaces import IImport
     >>> imports = [i for i in module.filtereditems(IImport)]
@@ -281,8 +261,7 @@ Check pointers of ``Import``. Case one-liner.
     >>> imp.bufstart, imp.bufend, imp.startlineno, imp.endlineno, imp.indent
     (11, 12, 12, 12, 0)
 
-Check pointers of ``Import``. Case multi-liner.
-::
+Check pointers of ``Import``. Case multi-liner::
 
     >>> imp = imports[6]
     >>> imp.buffer[imp.bufstart:imp.bufend]
@@ -293,8 +272,7 @@ Check pointers of ``Import``. Case multi-liner.
     >>> imp.bufstart, imp.bufend, imp.startlineno, imp.endlineno, imp.indent
     (181, 185, 182, 185, 0)
 
-Check pointers of ``Function``. Case function def one-liner.
-::
+Check pointers of ``Function``. Case function def one-liner::
 
     >>> func = module.functions(name='somefunction')[0]
     >>> func.buffer[func.bufstart:func.bufend]
@@ -304,8 +282,7 @@ Check pointers of ``Function``. Case function def one-liner.
     ...     func.defendlineno, func.indent
     (80, 82, 81, 82, 81, 0)
 
-Check pointers of ``Function``. Case function def multi-liner.
-::
+Check pointers of ``Function``. Case function def multi-liner::
 
     >>> func = module.functions(name=u'multilinefunctiondef')[0]
     >>> func.buffer[func.bufstart:func.bufend]
@@ -317,8 +294,7 @@ Check pointers of ``Function``. Case function def multi-liner.
     ...     func.defendlineno, func.indent
     (121, 125, 122, 125, 124, 0)
 
-Check pointers of ``Function``. Case function end multi-liner.
-::
+Check pointers of ``Function``. Case function end multi-liner::
 
     >>> func = module.functions(name=u'functionwithdocstring')[0]
     >>> func.buffer[func.bufstart:func.bufend]
@@ -332,8 +308,7 @@ Check pointers of ``Function``. Case function end multi-liner.
     ...     func.defendlineno, func.indent
     (188, 194, 189, 194, 189, 0)
 
-Check pointers of ``Function``. Case function as child.
-::
+Check pointers of ``Function``. Case function as child::
 
     >>> func = module.classes(name=u'SomeClass')[0].functions(name=u'__init__')[0]
     >>> func.buffer[func.bufstart:func.bufend]
@@ -345,8 +320,7 @@ Check pointers of ``Function``. Case function as child.
     ...     func.defendlineno, func.indent
     (136, 140, 137, 140, 137, 1) 
 
-Check pointers of ``Function``. Case decorated function.
-::
+Check pointers of ``Function``. Case decorated function::
 
     >>> func = module.functions(name=u'somedecoratedfunction')[0]
     >>> func.buffer[func.bufstart:func.bufend]
@@ -356,8 +330,7 @@ Check pointers of ``Function``. Case decorated function.
     ...     func.defendlineno, func.indent
     (114, 116, 115, 116, 115, 0)
 
-Check pointers of ``Attribute``.
-::
+Check pointers of ``Attribute``::
 
     >>> attr = module.attributes(name=u'param')[0]
     >>> attr.buffer[attr.bufstart:attr.bufend]
@@ -382,8 +355,7 @@ Check pointers of ``Attribute``.
     >>> attr.bufstart, attr.bufend, attr.startlineno, attr.endlineno, attr.indent
     (131, 132, 132, 132, 1)
 
-Check pointers of ``Decorator``. Single line decorator.
-::
+Check pointers of ``Decorator``. Single line decorator::
 
     >>> func = module.functions(name='somedecoratedfunction')[0]
     >>> deco = func.decorators()[0]
@@ -392,8 +364,7 @@ Check pointers of ``Decorator``. Single line decorator.
     >>> deco.bufstart, deco.bufend, deco.startlineno, deco.endlineno, deco.indent
     (113, 114, 114, 114, 0)
 
-Check pointers of ``Decorator``. Multiple decorators, single line decorators.
-::
+Check pointers of ``Decorator``. Multiple decorators, single line decorators::
 
     >>> func = module.functions(name='multidecoratedfunction')[0]
     >>> len(func.decorators())
@@ -417,8 +388,7 @@ Check pointers of ``Decorator``. Multiple decorators, single line decorators.
     >>> deco.bufstart, deco.bufend, deco.startlineno, deco.endlineno, deco.indent
     (168, 169, 169, 169, 0)
 
-Check pointers of ``Decorator``. Multi line decorator.
-::
+Check pointers of ``Decorator``. Multi line decorator::
 
     >>> func = module.functions(name='multilinedecorated')[0]
     >>> len(func.decorators())
@@ -432,8 +402,7 @@ Check pointers of ``Decorator``. Multi line decorator.
     >>> deco.bufstart, deco.bufend, deco.startlineno, deco.endlineno, deco.indent
     (172, 175, 173, 175, 0)
 
-Check pointers of ``Class``. Single line class def.
-::
+Check pointers of ``Class``. Single line class def::
 
     >>> class_ = module.classes(name='SomeClass')[0]
     >>> class_.buffer[class_.bufstart:class_.bufend][:3]
@@ -444,8 +413,7 @@ Check pointers of ``Class``. Single line class def.
     ...     class_.defendlineno, class_.indent
     (126, 144, 127, 144, 127, 0)
 
-Check pointers of ``Class``. Multi line class def.
-::
+Check pointers of ``Class``. Multi line class def::
 
     >>> class_ = module.classes(name='MultiLineClassDef')[0]
     >>> class_.buffer[class_.bufstart:class_.bufend][:4]
@@ -457,8 +425,7 @@ Check pointers of ``Class``. Multi line class def.
     ...     class_.defendlineno, class_.indent
     (161, 165, 162, 165, 163, 0)
   
-Check pointers of ``Class``. Case comment after class def.
-::
+Check pointers of ``Class``. Case comment after class def::
 
     >>> class_ = module.classes(name='OtherClass')[0]
     >>> class_.buffer[class_.bufstart:class_.bufend][:3]
@@ -469,8 +436,7 @@ Check pointers of ``Class``. Case comment after class def.
     ...     class_.defendlineno, class_.indent
     (145, 160, 146, 160, 146, 0)
 
-Check pointers of ``Docstring``. Case multi line.
-::
+Check pointers of ``Docstring``. Case multi line::
 
     >>> from node.ext.python.interfaces import IDocstring
     >>> docstrings = [d for d in module.filtereditems(IDocstring)]
@@ -486,8 +452,7 @@ Check pointers of ``Docstring``. Case multi line.
     >>> doc.bufstart, doc.bufend, doc.startlineno, doc.endlineno, doc.indent
     (4, 8, 5, 8, 0)
 
-Check pointers of ``Docstring``. Case single line.
-::
+Check pointers of ``Docstring``. Case single line::
   
     >>> doc = docstrings[1]
     >>> doc.buffer[doc.bufstart:doc.bufend]
@@ -495,8 +460,7 @@ Check pointers of ``Docstring``. Case single line.
     >>> doc.bufstart, doc.bufend, doc.startlineno, doc.endlineno, doc.indent
     (9, 10, 10, 10, 0)
 
-Check pointers of ``Docstring``. Case docstring as child.
-::
+Check pointers of ``Docstring``. Case docstring as child::
 
     >>> docstrings = [d for d in module.classes()[0].filtereditems(IDocstring)]
     >>> len(docstrings)
@@ -509,8 +473,7 @@ Check pointers of ``Docstring``. Case docstring as child.
     >>> doc.bufstart, doc.bufend, doc.startlineno, doc.endlineno, doc.indent
     (127, 129, 128, 129, 1)
 
-Check the ``Module.parser._createcodeblocks`` method. Case no split.
-::
+Check the ``Module.parser._createcodeblocks`` method. Case no split::
 
     >>> blocks = module.parser._createcodeblocks(72, 77)
     >>> len(blocks)
@@ -527,8 +490,7 @@ Check the ``Module.parser._createcodeblocks`` method. Case no split.
     ...     block.indent
     (72, 77, 73, 76, 0)
   
-Check the ``Module.parser._createcodeblocks`` method. Case split.
-::
+Check the ``Module.parser._createcodeblocks`` method. Case split::
 
     >>> module.buffer[81:86]
     [u'    return x, y, z', 
@@ -558,8 +520,7 @@ Check the ``Module.parser._createcodeblocks`` method. Case split.
     ...     block.indent
     (83, 86, 84, 86, 0)
 
-Check the ``Module.parser._createcodeblocks`` method. Case block as child.
-::
+Check the ``Module.parser._createcodeblocks`` method. Case block as child::
 
     >>> blocks = module.parser._createcodeblocks(148, 156)
     >>> len(blocks)
@@ -579,8 +540,7 @@ Check the ``Module.parser._createcodeblocks`` method. Case block as child.
     ...     block.indent
     (148, 156, 150, 155, 1)
 
-Check the ``Module.parser._createcodeblocks`` method. Case empty block.
-::
+Check the ``Module.parser._createcodeblocks`` method. Case empty block::
 
     >>> module.buffer[196:198]
     []
@@ -589,8 +549,7 @@ Check the ``Module.parser._createcodeblocks`` method. Case empty block.
     >>> len(blocks)
     0
 
-Check the ``Module.parser._parsecodeblocks`` method.
-::
+Check the ``Module.parser._parsecodeblocks`` method::
 
     >>> blocks = module.parser._parsecodeblocks()
     >>> len(blocks)
@@ -617,8 +576,7 @@ Check the ``Module.parser._parsecodeblocks`` method.
     ...     block.indent
     (139, 141, 140, 140, 2)
   
-Check the ``PythonNode.parser._findnodeposition`` method.
-::
+Check the ``PythonNode.parser._findnodeposition`` method::
 
     X[1..15]
       Y[1..4]      
@@ -652,26 +610,22 @@ Check the ``PythonNode.parser._findnodeposition`` method.
     >>> node['z'].endlineno = 10
     >>> node['z']._testindent = 1
 
-Case insert before 'z'.
-::
+Case insert before 'z'::
 
     >>> node.parser._findnodeposition(5, 6, 1)
     (<TestNode object 'z' at ...>, -1)
 
-Case insert after 'z'.
-::
+Case insert after 'z'::
 
     >>> node.parser._findnodeposition(11, 15, 1)
     (<TestNode object 'z' at ...>, 1)
 
-Case insert after 'x'.
-::
+Case insert after 'x'::
 
     >>> node.parser._findnodeposition(11, 15, 0)
     (<TestNode object 'x' at ...>, 1)
 
-Case insert into 'x'.
-::
+Case insert into 'x'::
 
     X[1..2]      
   
@@ -682,8 +636,7 @@ Case insert into 'x'.
     >>> node.parser._findnodeposition(2, 2, 0)
     (<TestNode object 'x' at ...>, 0)
 
-Case insert into 'y'.
-::
+Case insert into 'y'::
 
     X[1..5]
       y[2..3]      
@@ -699,8 +652,7 @@ Case insert into 'y'.
     >>> node.parser._findnodeposition(3, 3, 2)
     (<TestNode object 'y' at ...>, 0)
   
-Now the protected sections and blocks are added.
-::
+Now the protected sections and blocks are added::
 
     >>> module.printtree()
     <class 'node.ext.python.nodes.Module'>: [1:194] - -1
@@ -765,8 +717,7 @@ Now the protected sections and blocks are added.
         <class 'node.ext.python.nodes.Docstring'>: [190:191] - 1
         <class 'node.ext.python.nodes.Block'>: [192:194] - 1
 
-Check some ``Block`` contents.
-::
+Check some ``Block`` contents::
 
     >>> from node.ext.python.interfaces import IBlock
     >>> blocks = [b for b in module.filtereditems(IBlock)]
@@ -789,8 +740,7 @@ Check some ``Block`` contents.
     >>> block.lines[0]
     u'assert(1 == 1)'
 
-Check some ``ProtectedSection`` contents.
-::
+Check some ``ProtectedSection`` contents::
   
     >>> from node.ext.python.interfaces import IProtectedSection
     >>> sec = [s for s in module.filtereditems(IProtectedSection)][0]
@@ -806,8 +756,7 @@ Check some ``ProtectedSection`` contents.
     >>> sec.lines
     []
 
-Check some ``Docstring`` contents.
-::
+Check some ``Docstring`` contents::
 
     >>> from node.ext.python.interfaces import IDocstring
     >>> docstrings = [d for d in module.filtereditems(IDocstring)]
@@ -825,8 +774,7 @@ Check some ``Docstring`` contents.
     >>> doc.lines
     [u'Some docstring.']
 
-Check some ``Import`` attributes.
-::
+Check some ``Import`` attributes::
 
     >>> from node.ext.python.interfaces import IImport
     >>> imports = [i for i in module.filtereditems(IImport)]
@@ -868,8 +816,7 @@ Check some ``Import`` attributes.
     >>> imp.names
     [[u'C', u'D'], [u'E', u'F']]
 
-Check some ``Decorator`` contents.
-::
+Check some ``Decorator`` contents::
 
     >>> dec = module.functions(name=u'somedecoratedfunction')[0].decorators()[0]
     >>> dec.args
@@ -902,8 +849,7 @@ Check some ``Decorator`` contents.
     >>> dec.kwargs
     odict()
   
-Check some ``Function`` contents.
-::
+Check some ``Function`` contents::
 
     >>> from node.ext.python.interfaces import IFunction
     >>> functions = [f for f in module.filtereditems(IFunction)]
@@ -937,8 +883,7 @@ Check some ``Function`` contents.
     ('t', (1, 2, 3)), 
     ('o', {'args': [], 'name': 'object', 'kwargs': odict()})])
 
-Check some ``Class`` contents.
-::
+Check some ``Class`` contents::
 
     >>> from node.ext.python.interfaces import IClass
     >>> classes = [c for c in module.filtereditems(IClass)]
@@ -949,8 +894,7 @@ Check some ``Class`` contents.
     >>> class_.bases
     ['object']
 
-Check pointers of the code generated by renderer tests.
-::
+Check pointers of the code generated by renderer tests::
 
     >>> path = os.path.join(datadir, 'rendered.py')
     >>> Module._do_parse = True
@@ -1027,16 +971,14 @@ Check pointers of the code generated by renderer tests.
     ...     func.indent
     (41, 43, 42, 43, 1)
 
-Check Namespace package ``__init__.py`` parsing.
-::
+Check Namespace package ``__init__.py`` parsing::
 
     >>> init = Module('%s/__init_.py' % datadir)
     >>> init.printtree()
     <class 'node.ext.python.nodes.Module'>: [1:2] - -1
       <class 'node.ext.python.nodes.Block'>: [2:2] - 0
 
-Create ``node.ext.directory.Directory`` instance and test the parsing handler.
-::
+Create ``node.ext.directory.Directory`` instance and test the parsing handler::
 
     >>> from node.ext.directory import Directory
     >>> directory = Directory(datadir)
@@ -1063,4 +1005,3 @@ Create ``node.ext.directory.Directory`` instance and test the parsing handler.
       <class 'node.ext.python.nodes.Class'>: [40:43] - 0
         <class 'node.ext.python.nodes.Function'>: [42:43] - 1
           <class 'node.ext.python.nodes.Block'>: [43:43] - 2
-          
