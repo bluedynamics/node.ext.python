@@ -206,24 +206,6 @@ class ArgumentRenderer(object):
         kwargs = [self.render_kwarg(kw, a) for kw, a in call['kwargs'].items()]
         return '%s%s)' % (ret, ', '.join(args + kwargs))
     
-    def extract_arguments(self):
-        if self.model.s_args:
-            _args = self.model.s_args.split(',')
-            _args = [_arg.strip() for _arg in _args]
-        else:
-            _args = self.model.args
-        if self.model.s_kwargs:
-            add_args = self.model.s_kwargs.split(',')
-            add_args = [_kwarg.strip() for _kwarg in add_args]
-            _kwargs = odict()
-            for _kwarg in add_args:
-                key = _kwarg[:_kwarg.find('=')]
-                val = _kwarg[_kwarg.find('=') + 1:]
-                _kwargs[key] = val
-        else:
-            _kwargs = self.model.kwargs
-        return _args, _kwargs
-    
     def render_arguments(self, indent, baselen, args=[], kwargs=odict()):
         self._arglines = list()
         arguments = list()
@@ -305,7 +287,7 @@ class DecoratorRenderer(BaseRenderer, ArgumentRenderer):
             return u'%s\n' % u'\n'.join(lines)
         name = self.model.decoratorname
         level = self.model.nodelevel
-        d_args, d_kwargs = self.extract_arguments()
+        d_args, d_kwargs = self.model.extract_arguments()
         if d_args or d_kwargs.keys():
             rendered_args = self.render_arguments(level, len(name) + 2,
                                                   d_args, d_kwargs)
@@ -325,7 +307,7 @@ class FunctionRenderer(BaseRenderer, ArgumentRenderer):
             ret.append(decorator())
         name = self.model.functionname
         level = self.model.nodelevel
-        args, kwargs = self.extract_arguments()
+        args, kwargs = self.model.extract_arguments()
         indent = level * 4 * u' '
         base_str = u'def %s(' % name
         rfunc = u'%s%s' % (indent, base_str)

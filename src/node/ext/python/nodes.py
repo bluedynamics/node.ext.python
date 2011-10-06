@@ -427,15 +427,39 @@ class Attribute(PythonNode):
         return False
 
 
-class Decorator(PythonNode):
-    implements(IDecorator)
+class ArgumentsMixin(object):
     
-    def __init__(self, decoratorname=None, astnode=None, buffer=[]):
-        PythonNode.__init__(self, None, astnode, buffer)
+    def __init__(self):
         self.args = list()
         self.kwargs = odict()
         self.s_args = None
         self.s_kwargs = None
+    
+    def extract_arguments(self):
+        if self.s_args:
+            _args = self.s_args.split(',')
+            _args = [_arg.strip() for _arg in _args]
+        else:
+            _args = self.args
+        if self.s_kwargs:
+            add_args = self.s_kwargs.split(',')
+            add_args = [_kwarg.strip() for _kwarg in add_args]
+            _kwargs = odict()
+            for _kwarg in add_args:
+                key = _kwarg[:_kwarg.find('=')]
+                val = _kwarg[_kwarg.find('=') + 1:]
+                _kwargs[key] = val
+        else:
+            _kwargs = self.kwargs
+        return _args, _kwargs
+
+
+class Decorator(PythonNode, ArgumentsMixin):
+    implements(IDecorator)
+    
+    def __init__(self, decoratorname=None, astnode=None, buffer=[]):
+        PythonNode.__init__(self, None, astnode, buffer)
+        ArgumentsMixin.__init__(self)
         self.decoratorname = decoratorname
         self._args_orgin = list()
         self._kwargs_orgin = odict()
@@ -480,15 +504,12 @@ class Decorator(PythonNode):
         return False
 
 
-class Function(PythonNode):
+class Function(PythonNode, ArgumentsMixin):
     implements(IFunction)
     
     def __init__(self, functionname=None, astnode=None, buffer=[]):
         PythonNode.__init__(self, None, astnode, buffer)
-        self.args = list()
-        self.kwargs = odict()
-        self.s_args = None
-        self.s_kwargs = None
+        ArgumentsMixin.__init__(self)
         self._decorators = list()
         self.functionname = functionname
         self._args_orgin = list()
