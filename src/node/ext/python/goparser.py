@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# Copyright 2009, BlueDynamics Alliance - http://bluedynamics.com
 # GNU General Public License Version 2
 # Georg Gogo. BERNHARD gogo@bluedynamics.com
 #
@@ -10,6 +9,8 @@ import ast
 import _ast
 import sys
 import compiler
+
+VERBOSE = True
 
 class metanode(object):
 
@@ -29,22 +30,17 @@ class metanode(object):
         self.parent = parent
         self.children = []
         self.astnode = astnode
-        self.astclassname = astnode.__class__.__name__
         self.sourcelines = sourcelines
         self.startline = startline
         self.endline = endline
         self.indent = indent
         self.stuff = stuff
         self.offset = offset
+        self.heuristictype = None
         if parent != None:
             parent.children.append(self)
         self.correct()
 
-    def get_sourcelines(self):
-        """ Returns the lines of code assiciated with the node
-        """
-        return self.sourcelines[self.startline: self.endline+1]
-        
     def strip_comments(self, sourceline):
         """ Returns a line without comments, rstripped
         """
@@ -66,15 +62,15 @@ class metanode(object):
         self.endline = e
         
     def handle_upside_down_ness(self):
-	""" Would correct startlines that happen to be after endlines
-	"""
+        """ Would correct startlines that happen to be after endlines
+        """
         if self.startline > self.endline:
             import pdb;pdb.set_trace()
             self.startline, self.endline = self.endline, self.startline
 
     def correct_docstrings(self):
-	""" Fixes endlines of docstrings
-	"""
+        """ Fixes endlines of docstrings
+        """
         quotings = ['"""',"'''","'",'"']
         found = None
         e = self.endline
@@ -93,6 +89,7 @@ class metanode(object):
             s -= 1
             block = '\n'.join(self.sourcelines[s:e+1])
         self.startline = s
+        self.heuristictype = "Docstring"
 
     def correct_decorators(self):
         """ Decorators should not include the function definition start,
@@ -103,13 +100,14 @@ class metanode(object):
                 self.endline = i-1
                 self.parent.startline = i
                 break
+        self.heuristictype = "Decorator"
 
     def correct_col_offset(self):
         """ Fixes col_offset issues where it would be -1 for multiline strings
         """
         blanks = re.findall("^\s*", self.sourcelines[self.startline])[0]
         self.astnode.col_offset = len(blanks)
-
+        
     def correct(self):
         """ Fixes ast issues
         """
@@ -131,27 +129,51 @@ class metanode(object):
         # Multiline expressions have wrong col_offset
         if isinstance(self.astnode, _ast.Expr) and \
            self.astnode.col_offset < 0:
-#            import pdb;pdb.set_trace()
             self.correct_col_offset()
 
-    def codelines(self):
-        """ Returns the lines of code that are associated with the node
+    def get_codelines(self):
+        """ Returns the lines of code assiciated with the node
         """
-        return self.sourcelines[self.startline:self.endline+1]
-
+        return self.sourcelines[self.startline: self.endline+1]
+        
+    def get_type(self):
+        """ Returns a string identifying the type of the ast node
+        """
+        if self.heuristictype:
+            return self.heuristictype
+        else:
+            return self.astnode.__class__.__name__
+            
+    def get_astvalue(self, astnode):
+        """ Returns the value of a ast object if that makes any sense
+        """
+        t = astnode.__class__.__name__
+        if t == 'Name':
+            return astnode.id
+        if t == 'Str':
+            return astnode.s
+        if t == 'Num':
+            return astnode.n
+        return object()
+                    
     def __repr__(self):
         """ Returns a nodes representation
         """
-        return "%s (%s-%s)" % ( \
-                self.astnode.__class__.__name__, 
+        name = ''
+        if hasattr(self.astnode, 'name'):
+            name = " '%s'" % getattr(self.astnode, 'name')
+        return "%s (%s-%s%s)" % ( \
+                self.get_type(), 
                 self.startline+self.offset,
                 self.endline+self.offset, 
+                name,
                 )
 
     def dump(self):
         """ Nice for debugging
         """
-        print "--- %d (%d) %s (parent: %s)" % (
+        res = ""
+        res = "--- %d (%d) %s (parent: %s)\n" % (
                 self.indent,
                 self.astnode.col_offset, 
                 repr(self),
@@ -177,8 +199,8 @@ class metanode(object):
         #     print "%s:%s " % (field, repr(getattr(self.astnode, field, '-')),),
         # print "Parent:", repr(self.parent)
         for l in xrange(self.startline, self.endline+1):
-            print "%03d:%s" % (l+self.offset, repr(self.sourcelines[l])[1:-1])
-            
+            res += "%03d:%s\n" % (l+self.offset, repr(self.sourcelines[l])[1:-1])
+        return res
 
 class GoParser(object):
 
@@ -188,25 +210,17 @@ class GoParser(object):
         self.source = source
         self.filename = filename
         self.removeblanks()
-        self.nodes = []
-        self.encoding = None
+        self.children = []
         
     def walk(self, parent, nodes, start, end, ind):
         """ Iterates nodes of the abstract syntax tree
         """
-#         try:
+        lastnode = None
         nodecount = len(nodes)
-#         except TypeError:
-# #            print "avoiding %s - no lineno - break!" % repr(nodes)
-#             return
             
         for i in xrange(nodecount):
             current = nodes[i]
             
-            if not hasattr(current, 'lineno'):
- #               print "avoiding %s - no lineno - break!" % repr(current)
-                continue
-                
             if i < (nodecount-1):
                 if nodes[i+1].lineno != current.lineno:
                     nend = nodes[i+1].lineno-1
@@ -226,9 +240,12 @@ class GoParser(object):
                     offset=self.offset,
                     stuff=None,
                     )
-            mnode.dump()
+                    
+            if VERBOSE:
+                print mnode.dump()
+                
             if parent == None:
-                self.nodes.append(mnode)
+                self.children.append(mnode)
             
             next_set = []
             for field in current._fields:
@@ -240,12 +257,26 @@ class GoParser(object):
             next_set.sort()
             next_set = [i[1] for i in next_set]
             self.walk(mnode, next_set, start, nend, ind+1)
+            
+    # def cleanuptree(self, nodes, lastnode=None):
+    #     """ Performs some corrections on pairs of nodes
+    #     """
+    #     if not nodes:
+    #         return
+    #     if lastnode and nodes:
+    #         newA, newB = self.cleanup_pair(lastnode, nodes[0])
+    #     nodeA = None
+    #     nodeB = None
+    #     for i in xrange(1, len(nodes)):
+    #         nodeA = nodes[i-1]
+    #         nodeB = nodes[i]
+    #         self.cleanuptree(nodeA.children, nodeA)
+    #         newA, newB = self.cleanup_pair(nodeA, nodeB)
+    #         nodes[i-1] = newA
+    #         nodes[i] = newB
+    #     if nodeB:
+    #         self.cleanuptree(nodeB.children)
                 
-            # if hasattr(current, 'body'):
-            #     self.walk(current.body, start, nend, ind+1)
-            # # if hasattr(current, 'handlers'):
-            # #     self.walk(current.handlers, start, nend, ind+1)
-        
     def removeblanks(self):
         """ Removes trailing blank lines and rstrips source code. This
             function sets the offset to use to correct the indexing.
@@ -266,26 +297,76 @@ class GoParser(object):
         self.startline = 0
         self.offset = (before - after)
         self.endline = len(self.lines)
+
+    def cleanup_last_statement_and_docstring(self, nodeA, nodeB, allitems):
+        """ There's an issu where a docstring appears in the
+            buffer of the last statement of the previous codeblock
+        """
+        if (nodeB.get_type() == 'Docstring'):
+            index = allitems.index(nodeB) - 1
+            while nodeA.endline == nodeB.startline:
+                nodeA.endline = nodeB.startline - 1
+                print "Really corrected a doctsring flaw in %s and %s" % \
+                        (nodeA, nodeB,)
+                index = index - 1
+                nodeA = allitems[index]
+
+    def walk_pairs(self, itemlist, method):
+        itemcount = len(itemlist)
+        if itemcount < 2:
+            return
+        for i in xrange(1, itemcount):
+            A = itemlist[i-1]
+            B = itemlist[i]
+            method(A,B,itemlist)
+
+    def serialized_tree(self, nodes):
+        sernodes = []
+        for node in nodes:
+            sernodes.append(node)
+            sernodes += self.serialized_tree(node.children)
+        return sernodes
         
-    def __call__(self):
+    def clean_walk_siblings(self, nodes):
+        if not nodes:
+            return
+#        print "walking siblings", nodes
+        self.walk_pairs(nodes, self.clean_pair)
+        for node in nodes:
+            self.clean_walk_siblings(node.children)
+
+    def clean_pair(self, nodeA, nodeB, allitems=[]):
+#        print "Cleaning %s vs. %s" % (nodeA, nodeB)
+        self.cleanup_last_statement_and_docstring(nodeA, nodeB, allitems)
+        
+    def parsegen(self):
         """ Reads the input file, parses it and 
             calls a generator method on each node.
+            This function also cleans up all nodes
+            in a second step.
         """
-        self.encoding = self.get_encoding()
         astt = ast.parse(self.source, self.filename)
         self.lines = ['']+self.lines
         self.walk(None, astt.body, 1, self.endline, 0)
-        self.lines = self.lines[1:]
-        
-    def get_encoding(self):
-        """ Gets encoding from source code.
-        """
-        encs = re.findall("^# -\*-\ coding:\ (.*?)\ -\*-", self.source)
-        if len(encs) == 1:
-            return unicode(encs[0])
-        else:
-            return u'utf-8'
 
+        serializedtree = self.serialized_tree(self.children) 
+#        print "--------------walikng serialized:", serializedtree
+        self.walk_pairs(serializedtree, self.clean_pair)
+#        print "--------------walikng siblings:"
+        self.clean_walk_siblings(self.children)
+
+    def get_codelines(self):
+        """ Returns an array of source lines
+        """
+        return self.lines[1:]
+        
+    def get_coding(self):
+        """ Returns the files coding and defaults to ASCII (PEP: 0263)
+        """
+        try:
+            return unicode([i for i in re.compile("(?:#\s\-\*\-\scoding\:\s(.*?)\s\-\*\-)|coding[:=]\s*([-\w.]+)").findall('\n'.join(self.source.split('\n')[:2]))[0] if i][0])
+        except:
+            return u'ASCII'
         
 def main(filename):
     """ The module can be called with a filename of a python file for testing
@@ -295,16 +376,15 @@ def main(filename):
     fileinst.close()
     
     P = GoParser(source, filename)
-    P()
+    P.parsegen()
     
-    print repr(P.nodes)
-#    import pdb;pdb.set_trace()
+    print repr(P.children)
     
 if __name__ == '__main__':
     if len(sys.argv) == 1:
         filename = __file__
     else:
         filename = sys.argv[1]
+    VERBOSE = True
     main(filename)
-
 
