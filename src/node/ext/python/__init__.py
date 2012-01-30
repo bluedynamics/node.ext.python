@@ -1,6 +1,4 @@
-# Copyright BlueDynamics Alliance - http://bluedynamics.com
-# GNU General Public License Version 2
-
+from node.ext import directory
 from nodes import (
     Module,
     Docstring,
@@ -13,6 +11,8 @@ from nodes import (
     Block,
 )
 from interfaces import Call
+
+directory.file_factories['.py'] = Module
 
 import parser
 Docstring.parserfactory = parser.BaseParser
