@@ -104,7 +104,7 @@ param_4 = {
 
 param_5 = {'key': value}
 
-param_6 = object()
+param_6 = object(1, bar='baz')
 
 param_7 = u"somestring"
 

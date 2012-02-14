@@ -33,12 +33,15 @@ from node.ext.python.nodes import (
     Block,
 )
 
+
 CODESECTION_STARTTOKEN = '##code-section '
 CODESECTION_ENDTOKEN = '##/code-section '
+
 
 POSITION_INSERT = 0
 POSITION_AFTER = 1
 POSITION_BEFORE = -1
+
 
 class BaseParser(object):
     
@@ -195,12 +198,14 @@ class BaseParser(object):
                 pointer += 1
             return ret
 
+
 def parse_module_handler(obj, event):
     """Called, if ``Module`` is created and added to ``Directory`` node.
     """
     obj.parser()
 
 provideHandler(parse_module_handler, [IModule, IFileAddedEvent])
+
 
 class ModuleParser(BaseParser):
     
@@ -378,6 +383,7 @@ class ModuleParser(BaseParser):
             elif position == POSITION_AFTER:
                 node.__parent__.insertafter(child, node)
 
+
 class ImportParser(BaseParser):
     
     def __call__(self):
@@ -404,6 +410,7 @@ class ImportParser(BaseParser):
             return True
         return False
 
+
 class AttributeParser(BaseParser):
     
     def __call__(self):
@@ -417,6 +424,9 @@ class AttributeParser(BaseParser):
         self.model._targets_orgin = copy.deepcopy(self.model.targets)
         self._findattributeend()
         self._extractvalue()
+        self._parseastargs(astnode)
+        self.model._args_orgin = copy.deepcopy(self.model.args)
+        self.model._kwargs_orgin = copy.deepcopy(self.model.kwargs)
     
     def _findattributeend(self):
         pointer = self.model.bufstart
@@ -443,6 +453,16 @@ class AttributeParser(BaseParser):
         for i in range(1, len(lines)):
             lines[i] = self._cutline(lines[i])
         self.model.value = '\n'.join(lines)
+        self.model._value_orgin = '\n'.join(lines)
+    
+    def _parseastargs(self, astnode):
+        if not hasattr(astnode.value, 'args'):
+            return
+        for arg in astnode.value.args:
+            self.model.args.append(self._resolvearg(arg))
+        for keyword in astnode.value.keywords:
+            self.model.kwargs[keyword.arg] = self._resolvearg(keyword.value)
+
 
 class DecoratorParser(BaseParser):
     
@@ -450,8 +470,10 @@ class DecoratorParser(BaseParser):
         astnode = self.model.astnode
         if isinstance(astnode, _ast.Name):
             self.model.decoratorname = astnode.id
+            self.model._decoratorname_orgin = astnode.id
             return
         self.model.decoratorname = astnode.func.id
+        self.model._decoratorname_orgin = astnode.func.id
         self._parseastargs(astnode)
         self.model._args_orgin = copy.deepcopy(self.model.args)
         self.model._kwargs_orgin = copy.deepcopy(self.model.kwargs)
@@ -470,6 +492,7 @@ class DecoratorParser(BaseParser):
             if line.startswith(term):
                 return True
         return False
+
 
 class FunctionParser(BaseParser):
     
@@ -519,6 +542,7 @@ class FunctionParser(BaseParser):
         if line.endswith(u':'):
             return True
         return False
+
 
 class ClassParser(BaseParser):
     

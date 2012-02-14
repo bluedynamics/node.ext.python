@@ -16,6 +16,7 @@ from interfaces import (
     IBlock,
 )
 
+
 class BaseRenderer(object):
     
     def __init__(self, model):
@@ -52,6 +53,7 @@ class BaseRenderer(object):
                 continue
             value.postlf = 0
 
+
 class ModuleRenderer(BaseRenderer):
     
     CODING = u'# -*- coding: %s -*-\n'
@@ -74,6 +76,7 @@ class ModuleRenderer(BaseRenderer):
         with open(self.model.filepath, 'w') as out:
             out.write(rendered)
 
+
 class DocstringRenderer(BaseRenderer):
     
     def __call__(self):
@@ -90,6 +93,7 @@ class DocstringRenderer(BaseRenderer):
         ret.append(u'%s%s\n' % (indent, self.model.START_END))
         ret += [u'' for i in range(self.model.postlf)]
         return u'\n'.join(ret)
+
 
 class ProtectedSectionRenderer(BaseRenderer):
     
@@ -111,7 +115,8 @@ class ProtectedSectionRenderer(BaseRenderer):
             ret.append(indent + line)
         ret += [u'' for i in range(self.model.postlf + 1)]
         return u'\n'.join(ret)
-    
+
+
 class BlockRenderer(BaseRenderer):
     
     def __call__(self):
@@ -121,6 +126,7 @@ class BlockRenderer(BaseRenderer):
             lines += [u'' for i in range(self.model.postlf + 1)]
             return u'\n'.join(lines)
         return u''
+
 
 class ImportRenderer(BaseRenderer):
     
@@ -161,21 +167,6 @@ class ImportRenderer(BaseRenderer):
                 lines = [line] + imports[1:] + ['%s' % postlf]
             return '\n'.join(lines)
 
-class AttributeRenderer(BaseRenderer):
-    
-    def __call__(self):
-        if not self.model.targets or self.model.value is None:
-            raise Incomplete, u"Incomplete attribute definition."
-        level = self.model.nodelevel
-        indent = level * 4 * u' '
-        lines = self.model.value.split(u'\n')
-        lines[0] = u'%s%s = %s' % (indent, ', '.join(self.model.targets),
-                                   lines[0])
-        if len(lines) > 1:
-            for i in range(len(lines[1:])):
-                lines[i + 1] = u'%s%s' % (indent, lines[i + 1])
-        lines += [u'' for i in range(self.model.postlf + 1)]
-        return '\n'.join(lines)
 
 class ArgumentRenderer(object):
 
@@ -270,7 +261,41 @@ class ArgumentRenderer(object):
             if from_inner:
                 line = u'%s%s' % (indentstr, line)
             self._arglines.append(line)
+
+
+class AttributeRenderer(BaseRenderer, ArgumentRenderer):
     
+    def __init__(self, model):
+        ArgumentRenderer.__init__(self, model)
+    
+    def __call__(self):
+        if not self.model.targets or self.model.value is None:
+            raise Incomplete, u"Incomplete attribute definition."
+        level = self.model.nodelevel
+        indent = level * 4 * u' '
+        if not self.model._changed:
+            lines = self.model.buffer[self.model.bufstart:self.model.bufend]
+            lines = [self.model.parser._cutline(l) for l in lines]
+            lines = [u'%s%s' % (indent, l) for l in lines]
+            lines += [u'' for i in range(self.model.postlf + 1)]
+            return '\n'.join(lines)
+        d_args, d_kwargs = self.model.extract_arguments()
+        if not d_args and not d_kwargs:
+            lines = self.model.value.split(u'\n')
+            lines[0] = u'%s%s = %s' % (indent, ', '.join(self.model.targets),
+                                       lines[0])
+            if len(lines) > 1:
+                for i in range(len(lines[1:])):
+                    lines[i + 1] = u'%s%s' % (indent, lines[i + 1])
+            lines += [u'' for i in range(self.model.postlf + 1)]
+            return '\n'.join(lines)
+        targets = self.model.targets
+        value = self.model.value
+        rendered_args = self.render_arguments(level, len(value) + 2,
+                                              d_args, d_kwargs)
+        return u'%s%s = %s(%s)\n' % (indent, targets, value, rendered_args)
+
+
 class DecoratorRenderer(BaseRenderer, ArgumentRenderer):
     
     def __init__(self, model):
@@ -293,6 +318,7 @@ class DecoratorRenderer(BaseRenderer, ArgumentRenderer):
                                                   d_args, d_kwargs)
             return u'%s@%s(%s)\n' % (indent, name, rendered_args)
         return u'%s@%s\n' % (indent, name)
+
 
 class FunctionRenderer(BaseRenderer, ArgumentRenderer):
     
@@ -327,6 +353,7 @@ class FunctionRenderer(BaseRenderer, ArgumentRenderer):
             ret.append(u'%s    pass\n' % indent)
         ret += [u'\n' for i in range(self.model.postlf)]
         return u''.join(ret)
+
 
 class ClassRenderer(BaseRenderer, ArgumentRenderer):
     

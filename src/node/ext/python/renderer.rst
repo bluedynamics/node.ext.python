@@ -692,6 +692,17 @@ Insert Attributes before function::
             pass
     <BLANKLINE>
     EOF
+    
+    >>> attr = Attribute()
+    >>> attr.__name__ = u'attr-3'
+    >>> attr.targets = 'attribute_with_callable'
+    >>> attr.value = 'SomeFactory'
+    >>> attr.args.append('foo')
+    >>> attr.kwargs['bar'] = 'baz'
+    >>> print_source(attr())
+    attribute_with_callable = SomeFactory(foo, bar=baz)
+    <BLANKLINE>
+    EOF
 
 Add Block to function::
 

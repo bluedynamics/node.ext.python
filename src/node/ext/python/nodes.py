@@ -405,29 +405,6 @@ class Import(PythonNode):
         return False
 
 
-class Attribute(PythonNode):
-    implements(IAttribute)
-    
-    def __init__(self, targets=list(), value=None, astnode=None, buffer=[]):
-        PythonNode.__init__(self, None, astnode, buffer)
-        self.targets = targets
-        self.value = value
-        self.postlf = 0
-        self.parser = self.parserfactory(self)
-        if astnode is not None:
-            self.parser()
-    
-    @property
-    def endlineno(self):
-        return self.bufend
-    
-    @property
-    def _changed(self):
-        if self.targets != self._targets_orgin:
-            return True
-        return False
-
-
 class CallableArguments(object):
     implements(ICallableArguments)
     
@@ -470,6 +447,39 @@ class CallableArguments(object):
             if b_val is self.UNSET or b_val != value:
                 return False
         return True
+
+
+class Attribute(PythonNode, CallableArguments):
+    implements(IAttribute)
+    
+    def __init__(self, targets=list(), value=None, astnode=None, buffer=[]):
+        PythonNode.__init__(self, None, astnode, buffer)
+        CallableArguments.__init__(self)
+        self.targets = targets
+        self.value = value
+        self.postlf = 0
+        self.parser = self.parserfactory(self)
+        if astnode is not None:
+            self.parser()
+    
+    @property
+    def endlineno(self):
+        return self.bufend
+    
+    @property
+    def _changed(self):
+        if self.astnode is None:
+            return True
+        if self.value != self._value_orgin:
+            return True
+        if self.targets != self._targets_orgin:
+            return True
+        if self.s_args or self.s_kwargs:
+            return True
+        if self.args != self._args_orgin \
+          or self.kwargs != self._kwargs_orgin:
+            return True
+        return False
 
 
 class Decorator(PythonNode, CallableArguments):
@@ -519,6 +529,8 @@ class Decorator(PythonNode, CallableArguments):
     @property
     def _changed(self):
         if self.astnode is None:
+            return True
+        if self.decoratorname != self._decoratorname_orgin:
             return True
         if self.s_args or self.s_kwargs:
             return True
