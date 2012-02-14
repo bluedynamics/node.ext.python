@@ -695,7 +695,7 @@ Insert Attributes before function::
     
     >>> attr = Attribute()
     >>> attr.__name__ = u'attr-3'
-    >>> attr.targets = 'attribute_with_callable'
+    >>> attr.targets = ['attribute_with_callable']
     >>> attr.value = 'SomeFactory'
     >>> attr.args.append('foo')
     >>> attr.kwargs['bar'] = 'baz'

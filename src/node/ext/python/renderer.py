@@ -289,11 +289,14 @@ class AttributeRenderer(BaseRenderer, ArgumentRenderer):
                     lines[i + 1] = u'%s%s' % (indent, lines[i + 1])
             lines += [u'' for i in range(self.model.postlf + 1)]
             return '\n'.join(lines)
-        targets = self.model.targets
+        targets = ', '.join(self.model.targets)
         value = self.model.value
-        rendered_args = self.render_arguments(level, len(value) + 2,
-                                              d_args, d_kwargs)
-        return u'%s%s = %s(%s)\n' % (indent, targets, value, rendered_args)
+        baselen = len(targets) + len(value) + 8
+        rendered_args = self.render_arguments(level, baselen, d_args, d_kwargs)
+        post = '\n' * self.model.postlf
+        ret = u'%s%s = %s(%s)\n%s' % (
+            indent, targets, value, rendered_args, post)
+        return ret
 
 
 class DecoratorRenderer(BaseRenderer, ArgumentRenderer):
