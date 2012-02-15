@@ -552,7 +552,18 @@ class ClassParser(BaseParser):
         self._findbodyend(astnode)
         self._checkbodyendsmultilined()
         self._checkbodyendsprotected()
-        self.model.bases = [base.id for base in astnode.bases]
+        def base_name(astnode):
+            name = list()
+            while True:
+                if isinstance(astnode, _ast.Attribute):
+                    name.append(astnode.attr)
+                    astnode = astnode.value
+                else:
+                    name.append(astnode.id)
+                    break
+            name.reverse()
+            return '.'.join(name)
+        self.model.bases = [base_name(base) for base in astnode.bases]
         self.model._bases_orgin = copy.deepcopy(self.model.bases)
     
     def _definitionends(self, bufno):
