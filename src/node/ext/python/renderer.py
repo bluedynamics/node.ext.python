@@ -382,7 +382,7 @@ class ClassRenderer(BaseRenderer, ArgumentRenderer):
         values = [val for val in self.model.values() \
                   if not IDecorator.providedBy(val)]
         # case ``pass`` was parsed for class body
-        if values \
+        if len(values) == 1 \
           and IBlock.providedBy(values[0]) \
           and values[0].text == u'pass':
             values = list()

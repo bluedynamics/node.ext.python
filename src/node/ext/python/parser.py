@@ -402,8 +402,9 @@ class ImportParser(BaseParser):
         if len(self.model.buffer) <= bufno + 1:
             return True
         line = self.model.buffer[bufno + 1].strip()
-        for term in [u'from', u'import', u'if', u'for', u'while', u'try',
-                     u'with', u'class', u'def', u'@', u'#', u'"""', u'\'\'\'']:
+        for term in [u'from ', u'import ', u'if ', u'for ', u'while ', u'try ',
+                     u'with ', u'class ', u'def ', u'@', u'#', u'"""',
+                     u'\'\'\'']:
             if line.startswith(term):
                 return True
         if line == u'' or line.find(u'=') != -1:
