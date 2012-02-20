@@ -51,7 +51,6 @@ class BaseParser(object):
     def __call__(self):
         raise NotImplemented(u'BaseParser does not implement ``__call__``')
 
-#    def _createastchild(self, astnode, endlineno):
     def _createastchild(self, astnode):
         if hasattr(astnode, 'lineno'):
             if astnode.lineno - 1 in self.model.readlines:
@@ -434,7 +433,8 @@ class AttributeParser(BaseParser):
         buflen = len(self.model.buffer)
         source = ''
         while True:
-            if pointer + 1 == buflen:
+            #if pointer + 1 == buflen:
+            if pointer == buflen:
                 break
             line = self.model.buffer[pointer].strip()
             source = '%s\n%s' % (source, line)

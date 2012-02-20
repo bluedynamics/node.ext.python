@@ -1005,3 +1005,27 @@ Create ``node.ext.directory.Directory`` instance and test the parsing handler::
       <class 'node.ext.python.nodes.Class'>: [40:43] - 0
         <class 'node.ext.python.nodes.Function'>: [42:43] - 1
           <class 'node.ext.python.nodes.Block'>: [43:43] - 2
+
+Check class only containing attributes, no follow ups::
+
+    >>> modulepath = os.path.join(datadir, 'class_wo_functions.py')
+    >>> module = Module(modulepath)
+    
+    >>> module.printtree()
+    <class 'node.ext.python.nodes.Module'>: [1:7] - -1
+      <class 'node.ext.python.nodes.Class'>: [3:7] - 0
+        <class 'node.ext.python.nodes.Attribute'>: [5:5] - 1
+        <class 'node.ext.python.nodes.Attribute'>: [6:6] - 1
+        <class 'node.ext.python.nodes.Attribute'>: [7:7] - 1
+    
+    >>> module.classes()[0].attributes()[-1].startlineno
+    7
+    
+    >>> module.classes()[0].attributes()[-1].bufstart
+    6
+    
+    >>> module.classes()[0].attributes()[-1].endlineno
+    7
+    
+    >>> module.classes()[0].attributes()[-1].bufend
+    7
