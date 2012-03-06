@@ -10,6 +10,8 @@ import _ast
 import sys
 import compiler
 
+# hello
+
 VERBOSE = True
 
 class metanode(object):
@@ -24,6 +26,8 @@ class metanode(object):
             indent = None,
             offset = None,
             stuff = None,
+            do_correct=True,
+            parser=None,
             ):
         """ Stores additional info about a ast node
         """
@@ -37,9 +41,18 @@ class metanode(object):
         self.stuff = stuff
         self.offset = offset
         self.heuristictype = None
+        self.parser = parser
+        
+        # print self.get_type()
+        # if self.get_type() == 'NoneType':
+        #     import pdb;pdb.set_trace()
+        
         if parent != None:
             parent.children.append(self)
-        self.correct()
+        else:
+            parser.children.append(self)
+        if do_correct:
+            self.correct()
 
     def strip_comments(self, sourceline):
         """ Returns a line without comments, rstripped
@@ -101,6 +114,36 @@ class metanode(object):
                 self.parent.startline = i
                 break
         self.heuristictype = "Decorator"
+        
+    def correct_comments(self):
+        """ Looks if node contains comments at its end, because
+            they have to be removed and placed in another (comment-) node.
+        """
+        s = self.startline
+        e = self.endline
+        while (e > s + 1):
+            if re.findall('^\s*?#.*', self.sourcelines[e]) \
+               or self.is_empty(self.sourcelines[e]):
+                e = e - 1
+            else:
+                break
+        if e != self.endline:
+            print self.dump()
+            # generate comment type
+            subnode = metanode(self.parent,
+                    None,
+                    self.sourcelines,
+                    startline = e + 1, 
+                    endline = self.endline,
+                    indent = self.indent,
+                    offset = self.offset,
+                    stuff = self.stuff,
+                    do_correct = False,
+                    parser = self.parser)
+            subnode.heuristictype = 'Comment'
+            self.endline = e
+            if VERBOSE:
+                print subnode.dump()
 
     def correct_col_offset(self):
         """ Fixes col_offset issues where it would be -1 for multiline strings
@@ -113,6 +156,7 @@ class metanode(object):
         """
         self.handle_upside_down_ness()
         self.remove_trailing_blanklines()
+        self.correct_comments()
         
         # Deal with wrong start for Docstrings:
         if isinstance(self.astnode, _ast.Expr) and \
@@ -135,6 +179,11 @@ class metanode(object):
         """ Returns the lines of code assiciated with the node
         """
         return self.sourcelines[self.startline: self.endline+1]
+        
+    def get_buffer(self):
+        """ Returns the lines of code assiciated with the node
+        """
+        return self.sourcelines
         
     def get_type(self):
         """ Returns a string identifying the type of the ast node
@@ -173,12 +222,13 @@ class metanode(object):
         """ Nice for debugging
         """
         res = ""
-        res = "--- %d (%d) %s (parent: %s)\n" % (
-                self.indent,
-                self.astnode.col_offset, 
-                repr(self),
-                repr(self.parent),
-                )
+        if getattr(self, 'astnode'):
+            res = "--- %d (%d) %s (parent: %s)\n" % (
+                    self.indent,
+                    self.astnode.col_offset, 
+                    repr(self),
+                    repr(self.parent),
+                    )
 #         print "--- %d (%d)/%03d-%03d/ %s (parent: %s)" % (
 #                 self.indent,
 #                 self.astnode.col_offset, 
@@ -239,13 +289,15 @@ class GoParser(object):
                     indent=ind,
                     offset=self.offset,
                     stuff=None,
+                    do_correct=True,
+                    parser=self,
                     )
                     
             if VERBOSE:
                 print mnode.dump()
                 
-            if parent == None:
-                self.children.append(mnode)
+#            if parent == None:
+#                self.children.append(mnode)
             
             next_set = []
             for field in current._fields:
@@ -298,6 +350,14 @@ class GoParser(object):
         self.offset = (before - after)
         self.endline = len(self.lines)
 
+    def cleanup_fragmented_comments(self, nodeA, nodeB, allitems):
+        """
+        """
+        if (nodeA.get_type() == nodeB.get_type() == 'Comment'):
+            nodeA.startline = min(nodeA.startline, nodeB.startline)
+            nodeA.endline = max(nodeA.endline, nodeB.endline)
+            allitems.remove(nodeB)
+
     def cleanup_last_statement_and_docstring(self, nodeA, nodeB, allitems):
         """ There's an issu where a docstring appears in the
             buffer of the last statement of the previous codeblock
@@ -315,10 +375,12 @@ class GoParser(object):
         itemcount = len(itemlist)
         if itemcount < 2:
             return
-        for i in xrange(1, itemcount):
+        i = 1
+        while i < len(itemlist):
             A = itemlist[i-1]
             B = itemlist[i]
             method(A,B,itemlist)
+            i = i + 1
 
     def serialized_tree(self, nodes):
         sernodes = []
@@ -338,6 +400,7 @@ class GoParser(object):
     def clean_pair(self, nodeA, nodeB, allitems=[]):
 #        print "Cleaning %s vs. %s" % (nodeA, nodeB)
         self.cleanup_last_statement_and_docstring(nodeA, nodeB, allitems)
+        self.cleanup_fragmented_comments(nodeA, nodeB, allitems)
         
     def parsegen(self):
         """ Reads the input file, parses it and 

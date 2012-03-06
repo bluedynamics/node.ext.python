@@ -130,6 +130,7 @@ class SomeClass(object):
     
     attr = 0
     anotherattr = 1
+    implements(something)
     
     ##code-section class
     ##/code-section class

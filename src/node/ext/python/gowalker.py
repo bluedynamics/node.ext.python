@@ -3,6 +3,7 @@
 # Georg Gogo. BERNHARD gogo@bluedynamics.com
 #
 
+import re
 from node.ext.python.goparser import GoParser
 from node.ext.python.gonodes import (\
         Module, 
@@ -12,6 +13,9 @@ from node.ext.python.gonodes import (\
         Docstring,
         Import,
         Decorator,
+        ProtectedSection,
+        Assignment,
+        Expression,
         )
 
 typedefs = { \
@@ -20,21 +24,21 @@ typedefs = { \
         'Docstring': 'Docstring',
         'ImportFrom': 'Import',
         'Decorator': 'Decorator',
-        'Assign': 'Block',
-        'If': 'Block',
+        'Assign': 'Assignment', # value oder args und kwargs
+        'Expr': 'Expression', # @@@ Gogo. needs impl ;-)
         }
 
 subdefs = { \
-        'ClassDef': ['FunctionDef','ClassDef'],   
+        'ClassDef': ['FunctionDef','ClassDef','Assign','Expr','Docstring'],   
         'FunctionDef' : ['Decorator', 'Docstring'],
         'Block' : [],
         }
-
 
 class Walker(object):
     
     gopnodes = None
     nodes = []
+    protected_lines = []
     
     def __init__(self, filename):
         self.filename = filename
@@ -48,7 +52,7 @@ class Walker(object):
         call = str(nodetype)+\
                 """(name=str(gopnode),
                 gopnode=gopnode,
-                buffer=gopnode.get_codelines(),
+                buffer=gopnode.get_buffer(),
                 bufstart=gopnode.startline,
                 bufend=gopnode.endline,
                 )"""
@@ -56,8 +60,12 @@ class Walker(object):
         return newnode
         
     def createSubnode(self, gopnode, force=None):
-        here = self.createNodeByType(gopnode, force)
         wanted_subtypes = subdefs.get(gopnode.get_type(), [])
+        if gopnode.startline in self.protected_lines:
+#            import pdb;pdb.set_trace()
+            here = self.createNodeByType(gopnode, force="ProtectedSection")
+        else:
+            here = self.createNodeByType(gopnode, force)
 
         # Ignore Name child in ClassDef completely
         if here.get_type()=='Class' and \
@@ -67,30 +75,21 @@ class Walker(object):
         # lastsubsub = None
         for child in gopnode.children:
             subsub = None
+            
             if child.get_type() not in wanted_subtypes or \
                     here.get_type() == 'Block':
                 subsub = self.createSubnode(child, force="Block")
+                if here.get_type() == 'Block':
+                    here.bufstart = min(here.bufstart, subsub.bufstart)
+                    here.bufend = max(here.bufend, subsub.bufend)
+                    lastsubsub = subsub
+                    subsub = None
+                    continue
             else:
                 subsub = self.createSubnode(child)
 
-            if here.get_type() == 'Block':
-                here.bufstart = min(here.bufstart, subsub.bufstart)
-                here.bufend = max(here.bufend, subsub.bufend)
-                here.buffer.append(subsub.buffer)
-                lastsubsub = subsub
-                subsub = None
-                break
-
-            # if lastsubsub and lastsubsub.get_type() == 'Block':
-            #     lastsubsub.bufend = subsub.bufend
-            #     lastsubsub.buffer.append(subsub.buffer)
-            #     here[lastsubsub.uuid] = lastsubsub
-            #     subsub = None
-            #     print "combining with last block"
-            #     break
-
             if subsub:
-                here[subsub.uuid] = subsub
+                here[str(subsub.uuid)] = subsub
                 lastsubsub = subsub
         return here
         
@@ -113,20 +112,37 @@ class Walker(object):
     #             node_b.bufend,
     #             )
     #     return [newnode]
-    # 
-    # def cleanup(self, node):
-    #     numnodes = len(node.keys())
-    #     if numnodes < 2:
-    #         return node
-    #     first_node = node.values()[0]
-    #     newnodes = [self.cleanup(firstnode)]
-    #     for i in xrange(numnodes-1):
-    #         node_a = node.values()[i]
-    #         node_b = node.values()[i+1]
-    #         self.cleanup(node_a)
-    #         newnodes.append(self.combine(node_a, node_b))
-    #     node
-    #     return newnodes
+
+    def clean_pair(self, node_a, node_b):
+        if node_a.get_type() == node_b.get_type() == 'ProtectedSection':
+            print "About to delete %s" % (node_a,)
+            node_b.bufstart = min(node_a.bufstart, node_b.bufstart)
+            node_b.bufend = max(node_a.bufend, node_b.bufend)
+#            if node_a.parent.node(node_a.uuid):
+            if node_b.parent == node_a:
+#                import pdb;pdb.set_trace()
+                node_a.parent[str(node_b.uuid)] = node_b
+            del node_a.parent[str(node_a.uuid)]
+        node_b.gopnode.startline = node_b.bufstart
+        node_b.gopnode.endline = node_b.bufend
+            
+    def serialized_tree(self, nodes):
+        sernodes = []
+        for node in nodes:
+            sernodes.append(node)
+            sernodes += self.serialized_tree(node.values())
+        return sernodes
+
+    def cleanup(self, node):
+        sertree = self.serialized_tree(node.values())
+#        newnodes = []
+        i = 0
+        while i < len(sertree)-1:
+            node_a = sertree[i]
+            node_b = sertree[i+1]
+            self.clean_pair(node_a, node_b)
+            i = i + 1
+        return node
 
     def walk(self):
         """ Returns a filled Module node
@@ -137,22 +153,46 @@ class Walker(object):
         P = GoParser(source, filename)
         P.parsegen()
 
+        sourcecode = P.get_codelines()
+
         root = Module(\
                 filename = filename,
-                buffer = P.get_codelines(),
+                buffer = sourcecode,
                 bufstart = P.startline,
                 bufend = P.endline,
                 encoding = P.get_coding(),
                 )
         
+        # Prepare protected sections
+#        protectedsections = re.findall('(?ms)##code\-section (\\w*).*?##/code\-section \\1', '\n'.join(sourcecode))
+#        import pdb;pdb.set_trace()
+        section_id = None
+        for line_number in xrange(len(sourcecode)):
+            line = sourcecode[line_number]
+            new_section_id = re.findall('##code\-section (\\w*)', line)
+            if new_section_id and section_id:
+                raise "Fuck Shit Bitches"
+            if new_section_id:
+                section_id = new_section_id
+            if section_id:
+                self.protected_lines.append(line_number)
+                if re.findall('##/code\-section (\\w*)', line):
+                    section_id = None
+                    
+        print "Protected Lines are:", self.protected_lines
+        
         for gopnode in P.children:
             newnode = self.createSubnode(gopnode)
             print ".",
             if newnode != None:
-                root[newnode.uuid] = newnode
+                try:
+                    root[str(newnode.uuid)] = newnode
+                except Exception, e:
+                    import pdb;pdb.set_trace()
+                    
         print
         
-        # self.cleanup(root)
+        self.cleanup(root)
         return root
 
 def main(filename):

@@ -136,3 +136,12 @@ class IClass(IPythonNode):
     def decorators(name=None):
         """Return decorators. If name is not None, filter by name.
         """
+        
+class IAssignment(IPythonNode):
+    """Python assignment.
+    """
+    
+class IExpression(IPythonNode):
+    """Python expression.
+    """
+    

@@ -21,11 +21,12 @@ from node.ext.python.interfaces import (
     IProtectedSection,
     IImport,
     IAttribute,
-    ICallableArguments,
     IDecorator,
     IFunction,
     IClass,
     IBlock,
+    IAssignment,
+    IExpression,
 )
 
 class PythonNode(OrderedNode):
@@ -109,6 +110,7 @@ class PythonNode(OrderedNode):
         return attrs
 
     def acquire(self, interface=None):
+        # @@@ Gogo. maybe remove exists on base node impl
         if interface.providedBy(self):
             return self
         context = self.__parent__
@@ -170,7 +172,14 @@ class Decorator(PythonNode):
     implements(IDecorator)
     def __init__(self, *args, **kwargs):
         PythonNode.__init__(self, *args, **kwargs)
-        self.decoratorname = self.gopnode.astnode.id
+        
+class ProtectedSection(PythonNode):
+    implements(IProtectedSection)
+    def __init__(self, *args, **kwargs):
+        PythonNode.__init__(self, *args, **kwargs)
+
+#        import pdb;pdb.set_trace()
+#        self.decoratorname = self.gopnode.astnode.id
 
 class Function(PythonNode):
     implements(IFunction)
@@ -223,6 +232,16 @@ class Import(PythonNode):
     implements(IImport)
     def __init__(self, *args, **kwargs):
         PythonNode.__init__(self, *args, **kwargs)
+    
+class Assignment(PythonNode):
+    implements(IAssignment)
+    def __init__(self, *args, **kwargs):
+        PythonNode.__init__(self, *args, **kwargs)
+
+class Expression(PythonNode):
+    implements(IExpression)
+    def __init__(self, *args, **kwargs):
+        PythonNode.__init__(self, *args, **kwargs)    
     
 class Module(PythonNode):
     implements(IModule)
