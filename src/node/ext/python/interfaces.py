@@ -7,7 +7,7 @@ from zope.interface import (
 )
 from node.interfaces import (
     INode,
-    ICallableNode,
+    ICallable,
 )
 from node.ext.directory.interfaces import IFile
 
@@ -23,7 +23,7 @@ class Incomplete(Exception):
     pass
 
 
-class IPythonNode(ICallableNode):
+class IPythonNode(INode, ICallable):
     """Python node.
     """
     
