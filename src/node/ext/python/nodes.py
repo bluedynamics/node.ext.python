@@ -1,7 +1,7 @@
 import os
 from odict import odict
 from plumber import plumber
-from node.parts import (
+from node.behaviors import (
     Reference,
     Order,
 )
