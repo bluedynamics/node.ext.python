@@ -420,7 +420,11 @@ class AttributeParser(BaseParser):
                 for name in target.elts:
                     self.model.targets.append(name.id)
             else:
-                self.model.targets.append(target.id)
+                try:
+                    self.model.targets.append(target.id)
+                except:
+                    import pdb;pdb.set_trace()
+                    raise
         self.model._targets_orgin = copy.deepcopy(self.model.targets)
         self._findattributeend()
         self._extractvalue()
@@ -470,9 +474,11 @@ class DecoratorParser(BaseParser):
     def __call__(self):
         astnode = self.model.astnode
         if isinstance(astnode, _ast.Name):
+            astnode.id=astnode.attr #XXX added by phil because astnode.func.id is None
             self.model.decoratorname = astnode.id
             self.model._decoratorname_orgin = astnode.id
             return
+        astnode.func.id=astnode.func.attr #XXX added by phil because astnode.func.id is None
         self.model.decoratorname = astnode.func.id
         self.model._decoratorname_orgin = astnode.func.id
         self._parseastargs(astnode)
