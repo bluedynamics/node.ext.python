@@ -174,6 +174,7 @@ class BaseParser(object):
         elif isinstance(arg, _ast.Name):
             return arg.id
         elif isinstance(arg, _ast.Call):
+#            import pdb;pdb.set_trace()
             args = list()
             for a in arg.args:
                 args.append(self._resolvearg(a))
@@ -420,11 +421,7 @@ class AttributeParser(BaseParser):
                 for name in target.elts:
                     self.model.targets.append(name.id)
             else:
-                try:
-                    self.model.targets.append(target.id)
-                except:
-                    import pdb;pdb.set_trace()
-                    raise
+                self.model.targets.append(target.id)
         self.model._targets_orgin = copy.deepcopy(self.model.targets)
         self._findattributeend()
         self._extractvalue()
