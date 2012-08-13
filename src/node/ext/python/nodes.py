@@ -481,6 +481,8 @@ class Attribute(PythonNode, CallableArguments):
             return True
         return False
 
+    def __repr__(self):
+        return '<Attribute object %s at %s>' % (self.targets, self.name)
 
 class Decorator(PythonNode, CallableArguments):
     implements(IDecorator)
@@ -628,3 +630,6 @@ class Class(PythonNode):
         if self.bases != self._bases_orgin:
             return True
         return False
+    
+    def __repr__(self):
+        return '<Class object %s>' % self.classname
