@@ -1,5 +1,7 @@
 import os
 from odict import odict
+import ast
+
 from plumber import plumber
 from node.behaviors import (
     Reference,
@@ -423,13 +425,28 @@ class CallableArguments(object):
         else:
             _args = self.args
         if self.s_kwargs:
-            add_args = self.s_kwargs.split(',')
-            add_args = [_kwarg.strip() for _kwarg in add_args]
+            # use ast to parse the kwarg definition since 
+            # a def like arge=[1,2,3],args=33 would break with just splitting by ','
+            
+            #make call out of it because then ast gives the comma the smallest prio
+            fcalls='dummy(%s)' % self.s_kwargs.strip()
+            call=ast.parse(fcalls).body[0].value
+            keywords=call.keywords
             _kwargs = odict()
-            for _kwarg in add_args:
-                key = _kwarg[:_kwarg.find('=')]
-                val = _kwarg[_kwarg.find('=') + 1:]
-                _kwargs[key] = val
+            
+            for i,kw in zip(range(len(keywords)),keywords):
+                key=kw.arg
+                offset=kw.value.col_offset
+
+                if i < len(keywords)-1: #not the last rec
+                    nextoffset=keywords[i+1].value.col_offset
+                    val=fcalls[offset:nextoffset]
+                    #step back to the last comma
+                    val=val[:val.rfind(',')]
+                else: # for the last one we chop off the trailing ')'
+                    val=fcalls[offset:-1]
+            
+                _kwargs[key]=val
         else:
             _kwargs = self.kwargs
         return _args, _kwargs
