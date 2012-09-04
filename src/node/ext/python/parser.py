@@ -421,7 +421,6 @@ class AttributeParser(BaseParser):
                 for name in target.elts:
                     self.model.targets.append(name.id)
             elif isinstance(target, _ast.Subscript):
-                print 'subscript:',target.value.attr
                 self.model.targets.append(target.value.attr)
             else:
                 self.model.targets.append(target.id)
