@@ -420,8 +420,12 @@ class AttributeParser(BaseParser):
             if isinstance(target, _ast.Tuple):
                 for name in target.elts:
                     self.model.targets.append(name.id)
+            elif isinstance(target, _ast.Subscript):
+                print 'subscript:',target.value.attr
+                self.model.targets.append(target.value.attr)
             else:
                 self.model.targets.append(target.id)
+
         self.model._targets_orgin = copy.deepcopy(self.model.targets)
         self._findattributeend()
         self._extractvalue()
