@@ -423,8 +423,11 @@ class AttributeParser(BaseParser):
             elif isinstance(target, _ast.Subscript):
                 self.model.targets.append(target.value.attr)
             else:
-                self.model.targets.append(target.id)
-
+                try:
+                    self.model.targets.append(target.id)
+                except AttributeError:
+                    self.model.targets.append(target.value.id)
+                    
         self.model._targets_orgin = copy.deepcopy(self.model.targets)
         self._findattributeend()
         self._extractvalue()
