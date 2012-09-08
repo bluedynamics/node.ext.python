@@ -174,14 +174,16 @@ class BaseParser(object):
         elif isinstance(arg, _ast.Name):
             return arg.id
         elif isinstance(arg, _ast.Call):
-#            import pdb;pdb.set_trace()
             args = list()
             for a in arg.args:
                 args.append(self._resolvearg(a))
             kwargs = odict()
             for keyword in arg.keywords:
                 kwargs[keyword.arg] = self._resolvearg(keyword.value)
-            return Call(name=arg.func.id, args=args, kwargs=kwargs)
+            try:
+                return Call(name=arg.func.id, args=args, kwargs=kwargs)
+            except AttributeError:
+                return Call(name=arg.func.attr, args=args, kwargs=kwargs)
         elif isinstance(arg, _ast.Tuple) or isinstance(arg, _ast.List):
             ret = list()
             for a in arg.elts:
