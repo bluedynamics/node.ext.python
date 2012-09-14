@@ -24,6 +24,7 @@ from node.ext.python.interfaces import (
     IFunction,
     IClass,
     IBlock,
+    IDecorable,
 )
 
 
@@ -465,6 +466,23 @@ class CallableArguments(object):
                 return False
         return True
 
+class Decorable:
+    '''mixin for decorables (Function,Attribute,Class'''
+    implements(IDecorable)
+
+    def __init__(self):
+        self._decorators=list()
+            
+    def decorators(self, name=None):
+        decorators = [d for d in self.filtereditems(IDecorator)]
+        if name is not None:
+            decorators = [d for d in decorators if d.decoratorname == name]
+        return decorators
+    
+    def initdecorators(self):
+        for decorator in self._decorators:
+            self[decorator.uuid] = decorator
+
 
 class Attribute(PythonNode, CallableArguments):
     implements(IAttribute)
@@ -472,6 +490,7 @@ class Attribute(PythonNode, CallableArguments):
     def __init__(self, targets=list(), value=None, astnode=None, buffer=[]):
         PythonNode.__init__(self, None, astnode, buffer)
         CallableArguments.__init__(self)
+
         self.targets = targets
         self.value = value
         self.postlf = 0
@@ -559,29 +578,19 @@ class Decorator(PythonNode, CallableArguments):
         return False
 
 
-class Function(PythonNode, CallableArguments):
+class Function(PythonNode, CallableArguments, Decorable):
     implements(IFunction)
     
     def __init__(self, functionname=None, astnode=None, buffer=[]):
         PythonNode.__init__(self, None, astnode, buffer)
         CallableArguments.__init__(self)
-        self._decorators = list()
+        Decorable.__init__(self)
         self.functionname = functionname
         self._args_orgin = list()
         self._kwargs_orgin = odict()
         self.parser = self.parserfactory(self)
         if astnode is not None:
             self.parser()
-    
-    def decorators(self, name=None):
-        decorators = [d for d in self.filtereditems(IDecorator)]
-        if name is not None:
-            decorators = [d for d in decorators if d.decoratorname == name]
-        return decorators
-    
-    def initdecorators(self):
-        for decorator in self._decorators:
-            self[decorator.uuid] = decorator
     
     def _get_bufstart(self):
         p = self._bufstart
@@ -616,11 +625,13 @@ class Function(PythonNode, CallableArguments):
         return False
 
 
-class Class(PythonNode):
+class Class(PythonNode, Decorable):
     implements(IClass)
     
     def __init__(self, classname=None, astnode=None, buffer=[]):
         PythonNode.__init__(self, None, astnode, buffer)
+        Decorable.__init__(self)
+
         self.bases = list()
         self._bases_orgin = list()
         self.classname = classname
@@ -630,7 +641,6 @@ class Class(PythonNode):
     
     @property
     def defendlineno(self):
-#        import pdb;pdb.set_trace() # @@@ Gogo.
         bufno = self.bufstart
         while not self.parser._definitionends(bufno):
             bufno += 1

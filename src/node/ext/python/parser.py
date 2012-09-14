@@ -73,6 +73,7 @@ class BaseParser(object):
             self.model[str(class_.uuid)] = class_
             for childastnode in astnode.body:
                 class_.parser._createastchild(childastnode)
+            class_.initdecorators()
         elif isinstance(astnode, _ast.Expr) \
           and isinstance(astnode.value, _ast.Str):
             docstring = Docstring(None, astnode, self.model.buffer)
@@ -200,6 +201,12 @@ class BaseParser(object):
                 pointer += 1
             return ret
 
+    def parsedecorators(self, astnode):
+        for dec in astnode.decorator_list:
+            decorator = Decorator(None, dec)
+            decorator.buffer = self.model.buffer
+            decorator.readlines = self.model.readlines
+            self.model._decorators.append(decorator)
 
 def parse_module_handler(obj, event):
     """Called, if ``Module`` is created and added to ``Directory`` node.
@@ -479,11 +486,14 @@ class DecoratorParser(BaseParser):
     def __call__(self):
         astnode = self.model.astnode
         if isinstance(astnode, _ast.Name):
-            astnode.id=astnode.attr #XXX added by phil because astnode.func.id is None
+            if not astnode.id:
+                astnode.id=astnode.attr #XXX added by phil because sometimes astnode.id is None
             self.model.decoratorname = astnode.id
             self.model._decoratorname_orgin = astnode.id
             return
-        astnode.func.id=astnode.func.attr #XXX added by phil because astnode.func.id is None
+        
+        if not getattr(astnode.func,'id',None):
+            astnode.func.id=astnode.func.attr #XXX added by phil because sometimes astnode.func.id is None
         self.model.decoratorname = astnode.func.id
         self.model._decoratorname_orgin = astnode.func.id
         self._parseastargs(astnode)
@@ -517,12 +527,8 @@ class FunctionParser(BaseParser):
         self._parseastargs(astnode)
         self.model._args_orgin = copy.deepcopy(self.model.args)
         self.model._kwargs_orgin = copy.deepcopy(self.model.kwargs)
-        for dec in astnode.decorator_list:
-            decorator = Decorator(None, dec)
-            decorator.buffer = self.model.buffer
-            decorator.readlines = self.model.readlines
-            self.model._decorators.append(decorator)
-    
+        self.parsedecorators(astnode)
+        
     def _parseastargs(self, astnode):
         all = list()
         for arg in astnode.args.args:
@@ -577,6 +583,8 @@ class ClassParser(BaseParser):
             return '.'.join(name)
         self.model.bases = [base_name(base) for base in astnode.bases]
         self.model._bases_orgin = copy.deepcopy(self.model.bases)
+
+        self.parsedecorators(astnode)
     
     def _definitionends(self, bufno):
         if len(self.model.buffer) <= bufno:

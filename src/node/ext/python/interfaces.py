@@ -148,6 +148,8 @@ class IDecorator(IPythonNode, ICallableArguments):
         """Check whether other decorator is equal to self.
         """
 
+class IDecorable(Interface):
+    '''decorable nodes (currently Function,Attribute,Class'''
 
 class IFunction(IPythonNode, ICallableArguments):
     """Python function.
