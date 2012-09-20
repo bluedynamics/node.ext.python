@@ -149,7 +149,7 @@ class IDecorator(IPythonNode, ICallableArguments):
         """
 
 class IDecorable(Interface):
-    '''decorable nodes (currently Function,Attribute,Class'''
+    '''decorable nodes (currently Function, Class'''
 
 class IFunction(IPythonNode, ICallableArguments):
     """Python function.
