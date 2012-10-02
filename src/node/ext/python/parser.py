@@ -547,7 +547,7 @@ class FunctionParser(BaseParser):
         if astnode.args.vararg:
             self.model.args.append('*%s' % astnode.args.vararg)
         if astnode.args.kwarg:
-            self.model.kwargs['**%s' % astnode.args.vararg] = None
+            self.model.kwargs['**%s' % astnode.args.kwarg] = None
     
     def _definitionends(self, bufno):
         if len(self.model.buffer) <= bufno:
