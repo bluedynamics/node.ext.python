@@ -169,7 +169,7 @@ class BaseParser(object):
     
     def _resolvearg(self, arg):
         if isinstance(arg, _ast.Str):
-            return arg.s
+            return repr(arg.s)
         elif isinstance(arg, _ast.Num):
             return arg.n
         elif isinstance(arg, _ast.Name):
