@@ -822,7 +822,7 @@ Check some ``Decorator`` contents::
     >>> dec.args
     ['A']
     >>> dec.kwargs
-    odict([('b', 'foo')])
+    odict([('b', "'foo'")])
   
     >>> dec = module.functions(name='multilinedecorated')[0].decorators()[0]
     >>> dec.args
@@ -835,7 +835,7 @@ Check some ``Decorator`` contents::
     >>> dec = module.functions(\
     ...           name=u'multidecoratedfunction')[0].decorators()[0]
     >>> dec.args
-    ['a']
+    ["'a'"]
     >>> dec.kwargs
     odict()
   
@@ -871,14 +871,14 @@ Check some ``Function`` contents::
     ['aa', 'bb']
   
     >>> func.kwargs
-    odict([('cc', 'hello')])
+    odict([('cc', "'hello'")])
   
     >>> func = module.functions(name=u'functionwithdocstring')[0]
     >>> func.args
     []
   
     >>> func.kwargs
-    odict([('d', {'foo': 1}), 
+    odict([('d', {"'foo'": 1}), 
     ('l', [1, 2, 3]), 
     ('t', (1, 2, 3)), 
     ('o', {'args': [], 'name': 'object', 'kwargs': odict()})])
