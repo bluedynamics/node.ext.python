@@ -418,6 +418,11 @@ Move function from class to module::
 
     >>> name = cla.functions()[0].__name__
     >>> func = cla.detach(name)
+    >>> func.args
+    ['self']
+    
+    >>> func.args = [] # remove self from args
+    
     >>> module.insertbefore(func, cla)
     >>> module.printtree()
     <class 'node.ext.python.nodes.Module'>: [1:51] - -1
