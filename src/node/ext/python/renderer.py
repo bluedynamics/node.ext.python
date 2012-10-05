@@ -345,8 +345,9 @@ class FunctionRenderer(BaseRenderer, ArgumentRenderer):
         base_str = u'def %s(' % name
         rfunc = u'%s%s' % (indent, base_str)
         parent=self.model.__parent__
-        if not IClass.providedBy(parent) and u'self' in args:
-            args = args[1:]
+        #XXX: to be tested, if the deactivation of the next 2 lines doesnt break 
+        #if not IClass.providedBy(parent) and u'self' in args:
+        #args = args[1:]
         if IClass.providedBy(parent):
             #add self to methods, but only if the class is not an interface
             try:
