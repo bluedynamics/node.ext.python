@@ -1,6 +1,5 @@
 # Copyright BlueDynamics Alliance - http://bluedynamics.com
 # GNU General Public License Version 2
-
 import os
 import unittest
 import doctest
@@ -8,20 +7,24 @@ import zope.component
 from pprint import pprint
 from interlude import interact
 
+
 optionflags = doctest.NORMALIZE_WHITESPACE | \
               doctest.ELLIPSIS | \
               doctest.REPORT_ONLY_FIRST_FAILURE
 
+
 TESTFILES = [
-    '../renderer.rst',
-    '../parser.rst',
-    '../goparser.rst',
-    '../edgecases.rst',
-    '../nodes.rst',
-    '../utils.rst',
+    'renderer.rst',
+    'parser.rst',
+    'goparser.rst',
+    'edgecases.rst',
+    'nodes.rst',
+    'utils.rst',
 ]
 
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+
+datadir = os.path.join(os.path.dirname(__file__), 'testing', 'data')
+
 
 def test_suite():
     return unittest.TestSuite([
@@ -33,6 +36,7 @@ def test_suite():
                    'datadir': datadir},
         ) for file in TESTFILES
     ])
+
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
