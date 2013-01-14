@@ -31,12 +31,12 @@ from node.ext.python.interfaces import (
 class PythonNode(OrderedNode):
     __metaclass__ = plumber
     __plumbing__ = Reference, Order
-    
+
     implements(IPythonNode)
-    
+
     parserfactory = None
     rendererfactory = None
-    
+
     def __init__(self, name, astnode=None, buffer=[]):
         OrderedNode.__init__(self, name)
         self.astnode = astnode
@@ -48,20 +48,20 @@ class PythonNode(OrderedNode):
         if astnode is not None and hasattr(self.astnode, 'lineno'):
             self.bufstart = self.astnode.lineno - 1
             self.bufend = self.astnode.lineno
-    
+
     def __call__(self):
         return self.rendererfactory(self)()
-    
+
     @property
     def startlineno(self):
         if self.bufstart is None:
             return None
         return self.bufstart + 1
-    
+
     @property
     def endlineno(self):
         return self.bufend
-    
+
     @property
     def indent(self):
         if hasattr(self, 'defendlineno'):
@@ -69,7 +69,7 @@ class PythonNode(OrderedNode):
         else:
             end = self.endlineno
         return self.parser._findindent(self.buffer[self.bufstart:end])
-    
+
     @property
     def nodelevel(self):
         level = -1
@@ -78,34 +78,34 @@ class PythonNode(OrderedNode):
                 break
             level += 1
         return level
-    
+
     def docstrings(self):
         return [d for d in self.filtereditems(IDocstring)]
-    
+
     def blocks(self):
         return [b for b in self.filtereditems(IBlock)]
-    
+
     def imports(self):
         return [i for i in self.filtereditems(IImport)]
-    
+
     def protectedsections(self, name=None):
         psecs = [p for p in self.filtereditems(IProtectedSection)]
         if name is not None:
             psecs = [p for p in psecs if p.sectionname == name]
         return psecs
-    
+
     def classes(self, name=None):
         classes = [c for c in self.filtereditems(IClass)]
         if name is not None:
             classes = [c for c in classes if c.classname == name]
         return classes
-    
+
     def functions(self, name=None):
         functions = [f for f in self.filtereditems(IFunction)]
         if name is not None:
             functions = [f for f in functions if f.functionname == name]
         return functions
-    
+
     def attributes(self, name=None):
         attrs = [a for a in self.filtereditems(IAttribute)]
         if name is not None:
@@ -119,7 +119,7 @@ class PythonNode(OrderedNode):
         while context and not interface.providedBy(context):
             context = context.parent
         return context
-    
+
     @property
     def noderepr(self):
         try:
@@ -148,10 +148,10 @@ class PythonNode(OrderedNode):
 
 class Module(PythonNode):
     implements(IModule)
-    
+
     # flag to turn off parsing on __init__. Needed by test.
     _do_parse = True
-    
+
     def __init__(self, name=None):
         PythonNode.__init__(self, name)
         self.encoding = u'utf-8'
@@ -166,13 +166,13 @@ class Module(PythonNode):
             self.parser()
         except Incomplete, e:
             pass
-    
+
     @property
     def modulename(self):
         if self.__name__ is None:
             return None
         return unicode(os.path.splitext(os.path.basename(self.__name__))[0])
-    
+
     @property
     def filepath(self):
         path = self.__name__
@@ -184,49 +184,49 @@ class Module(PythonNode):
           or not IDirectory.providedBy(self.__parent__):
             raise Incomplete, u"Could not verify file path."
         return os.path.join(*self.path)
-    
+
     def _get_buffer(self):
         return self._buffer
-    
+
     def _set_buffer(self, val):
         # set by parser directly. XXX
         pass
-    
+
     buffer = property(_get_buffer, _set_buffer)
-    
+
     @property
     def indent(self):
         return 0
 
 
 class _TextMixin(object):
-    
+
     def __init__(self):
         self.LINES_CHANGED = 0
         self.TEXT_CHANGED = 1
         self.LAST_CHANGE = None
-    
+
     def _set_lines(self, lines):
         self._lines = lines
         self.LAST_CHANGE = self.LINES_CHANGED
-    
+
     def _get_text(self):
         if self._text is not False:
             if self.LAST_CHANGE == self.TEXT_CHANGED:
                 return self._text
         self.text = u'\n'.join(self.lines)
         return self._text
-    
+
     def _set_text(self, text):
         self._text = text.strip('\n')
         self.LAST_CHANGE = self.TEXT_CHANGED
-    
+
     text = property(_get_text, _set_text)
 
 
 class Docstring(PythonNode, _TextMixin):
     implements(IDocstring)
-    
+
     def __init__(self, text=None, astnode=None, buffer=[]):
         _TextMixin.__init__(self)
         PythonNode.__init__(self, None, astnode, buffer)
@@ -236,7 +236,7 @@ class Docstring(PythonNode, _TextMixin):
             self.text = text
         self.START_END = u'"""'
         self.parser = self.parserfactory(self)
-        
+
     def _get_lines(self):
         if self._lines is not False or self._text is not False:
             if self.LAST_CHANGE == self.TEXT_CHANGED:
@@ -256,9 +256,9 @@ class Docstring(PythonNode, _TextMixin):
         if len(lines) > 1 and not lines[-1]:
             lines = lines[:len(lines) - 1]
         return lines
-    
+
     lines = property(_get_lines, _TextMixin._set_lines)
-    
+
     @property
     def startlineno(self):
         end = self.bufend
@@ -276,12 +276,12 @@ class Docstring(PythonNode, _TextMixin):
             if buf[n].find(u'"""') != -1 \
               or buf[n].find(u"'''") != -1:
                 return n + 1
-    
+
     def _get_bufstart(self):
         return self.startlineno - 1
-    
+
     def _set_bufstart(self, lineno): pass
-    
+
     bufstart = property(_get_bufstart, _set_bufstart)
 
 
@@ -296,7 +296,7 @@ class ProtectedSection(PythonNode, _TextMixin):
         self._lines = False
         self._text = False
         self.parser = self.parserfactory(self)
-    
+
     def _get_lines(self):
         if self._lines is not False or self._text is not False:
             if self.LAST_CHANGE == self.TEXT_CHANGED:
@@ -316,13 +316,13 @@ class ProtectedSection(PythonNode, _TextMixin):
         lines = self.buffer[self.bufstart + 1:self.bufend - 1]
         self.lines = [self.parser._cutline(line) for line in lines]
         return self._lines
-    
+
     lines = property(_get_lines, _TextMixin._set_lines)
 
 
 class Block(PythonNode, _TextMixin):
     implements(IBlock)
-    
+
     def __init__(self, text=None, buffer=[]):
         _TextMixin.__init__(self)
         PythonNode.__init__(self, None, None, buffer)
@@ -332,7 +332,7 @@ class Block(PythonNode, _TextMixin):
         if text is not None:
             self.text = text
         self.parser = self.parserfactory(self)
-    
+
     def _get_lines(self):
         if self._lines is not False or self._text is not False:
             if self.LAST_CHANGE == self.TEXT_CHANGED:
@@ -353,16 +353,16 @@ class Block(PythonNode, _TextMixin):
         except TypeError, e:
             self.lines = list()
         return self._lines
-    
+
     lines = property(_get_lines, _TextMixin._set_lines)
-    
+
     @property
     def startlineno(self):
         start = self.bufstart
         while not self.buffer[start].strip():
             start += 1
         return start + 1
-    
+
     @property
     def endlineno(self):
         end = self.bufend
@@ -373,7 +373,7 @@ class Block(PythonNode, _TextMixin):
 
 class Import(PythonNode):
     implements(IImport)
-    
+
     def __init__(self, fromimport=None, names=[], astnode=None, buffer=[]):
         PythonNode.__init__(self, None, astnode, buffer)
         self.fromimport = fromimport
@@ -383,21 +383,21 @@ class Import(PythonNode):
         self.parser = self.parserfactory(self)
         if astnode is not None:
             self.parser()
-    
+
     def _get_bufend(self):
         bufno = self.bufstart
         while not self.parser._definitionends(bufno):
             bufno += 1
         return bufno + 1
-    
+
     def _set_bufend(self, lineno): pass
-    
+
     bufend = property(_get_bufend, _set_bufend)
-    
+
     @property
     def endlineno(self):
         return self.bufend
-    
+
     @property
     def _changed(self):
         if self.astnode is None:
@@ -410,15 +410,15 @@ class Import(PythonNode):
 
 class CallableArguments(object):
     implements(ICallableArguments)
-    
+
     UNSET = object()
-    
+
     def __init__(self):
         self.args = list()
         self.kwargs = odict()
         self.s_args = None
         self.s_kwargs = None
-    
+
     def extract_arguments(self):
         if self.s_args:
             _args = self.s_args.split(',')
@@ -426,15 +426,15 @@ class CallableArguments(object):
         else:
             _args = self.args
         if self.s_kwargs:
-            # use ast to parse the kwarg definition since 
+            # use ast to parse the kwarg definition since
             # a def like arge=[1,2,3],args=33 would break with just splitting by ','
-            
+
             #make call out of it because then ast gives the comma the smallest prio
             fcalls='dummy(%s)' % self.s_kwargs.strip()
             call=ast.parse(fcalls).body[0].value
             keywords=call.keywords
             _kwargs = odict()
-            
+
             for i,kw in zip(range(len(keywords)),keywords):
                 key=kw.arg
                 offset=kw.value.col_offset
@@ -446,12 +446,12 @@ class CallableArguments(object):
                     val=val[:val.rfind(',')]
                 else: # for the last one we chop off the trailing ')'
                     val=fcalls[offset:-1]
-            
+
                 _kwargs[key]=val
         else:
             _kwargs = self.kwargs
         return _args, _kwargs
-    
+
     def arguments_equal(self, other):
         a_args, a_kwargs = self.extract_arguments()
         b_args, b_kwargs = other.extract_arguments()
@@ -472,13 +472,13 @@ class Decorable:
 
     def __init__(self):
         self._decorators=list()
-            
+
     def decorators(self, name=None):
         decorators = [d for d in self.filtereditems(IDecorator)]
         if name is not None:
             decorators = [d for d in decorators if d.decoratorname == name]
         return decorators
-    
+
     def initdecorators(self):
         for decorator in self._decorators:
             self[decorator.uuid] = decorator
@@ -486,7 +486,7 @@ class Decorable:
 
 class Attribute(PythonNode, CallableArguments):
     implements(IAttribute)
-    
+
     def __init__(self, targets=list(), value=None, astnode=None, buffer=[]):
         PythonNode.__init__(self, None, astnode, buffer)
         CallableArguments.__init__(self)
@@ -497,11 +497,11 @@ class Attribute(PythonNode, CallableArguments):
         self.parser = self.parserfactory(self)
         if astnode is not None:
             self.parser()
-    
+
     @property
     def endlineno(self):
         return self.bufend
-    
+
     @property
     def _changed(self):
         if self.astnode is None:
@@ -522,7 +522,7 @@ class Attribute(PythonNode, CallableArguments):
 
 class Decorator(PythonNode, CallableArguments):
     implements(IDecorator)
-    
+
     def __init__(self, decoratorname=None, astnode=None, buffer=[]):
         PythonNode.__init__(self, None, astnode, buffer)
         CallableArguments.__init__(self)
@@ -532,13 +532,13 @@ class Decorator(PythonNode, CallableArguments):
         self.parser = self.parserfactory(self)
         if astnode is not None:
             self.parser()
-    
+
     def equals(self, other):
         if self.decoratorname == other.decoratorname \
           and self.arguments_equal(other):
             return True
         return False
-    
+
     @property
     def nodelevel(self):
         level = -1
@@ -549,21 +549,21 @@ class Decorator(PythonNode, CallableArguments):
         if level == 0:
             return 0
         return level - 1
-    
+
     def _get_bufend(self):
         bufno = self.bufstart
         while not self.parser._definitionends(bufno):
             bufno += 1
         return bufno + 1
-    
+
     def _set_bufend(self, lineno): pass
-    
+
     bufend = property(_get_bufend, _set_bufend)
-    
+
     @property
     def endlineno(self):
         return self.bufend
-    
+
     @property
     def _changed(self):
         if self.astnode is None:
@@ -580,7 +580,7 @@ class Decorator(PythonNode, CallableArguments):
 
 class Function(PythonNode, CallableArguments, Decorable):
     implements(IFunction)
-    
+
     def __init__(self, functionname=None, astnode=None, buffer=[]):
         PythonNode.__init__(self, None, astnode, buffer)
         CallableArguments.__init__(self)
@@ -591,7 +591,7 @@ class Function(PythonNode, CallableArguments, Decorable):
         self.parser = self.parserfactory(self)
         if astnode is not None:
             self.parser()
-    
+
     def _get_bufstart(self):
         p = self._bufstart
         while True:
@@ -600,19 +600,19 @@ class Function(PythonNode, CallableArguments, Decorable):
             if self.buffer[p].strip().startswith('def '):
                 return p
             p += 1
-    
+
     def _set_bufstart(self, val):
         self._bufstart = val
-    
+
     bufstart = property(_get_bufstart, _set_bufstart)
-    
+
     @property
     def defendlineno(self):
         bufno = self.bufstart
         while not self.parser._definitionends(bufno):
             bufno += 1
         return bufno + 1
-    
+
     @property
     def _changed(self):
         if self.astnode is None:
@@ -627,7 +627,7 @@ class Function(PythonNode, CallableArguments, Decorable):
 
 class Class(PythonNode, Decorable):
     implements(IClass)
-    
+
     def __init__(self, classname=None, astnode=None, buffer=[]):
         PythonNode.__init__(self, None, astnode, buffer)
         Decorable.__init__(self)
@@ -638,25 +638,25 @@ class Class(PythonNode, Decorable):
         self.parser = self.parserfactory(self)
         if astnode is not None:
             self.parser()
-    
+
     @property
     def defendlineno(self):
         bufno = self.bufstart
         while not self.parser._definitionends(bufno):
             bufno += 1
         return bufno + 1
-    
+
     def decorators(self, name=None):
         decorators = [d for d in self.filtereditems(IDecorator)]
         if name is not None:
             decorators = [d for d in decorators if d.decoratorname == name]
         return decorators
-    
+
     @property
     def _changed(self):
         if self.bases != self._bases_orgin:
             return True
         return False
-    
+
     def __repr__(self):
         return '<Class object %s>' % self.classname
