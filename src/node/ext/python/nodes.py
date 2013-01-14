@@ -128,19 +128,19 @@ class PythonNode(OrderedNode):
             startlineno = self.startlineno
             if startlineno is not None:
                 startlineno = str(startlineno + offset)
-            else :
+            else:
                 startlineno = '?'
             endlineno = self.endlineno
             if endlineno is not None:
                 endlineno = str(endlineno + offset)
-            else :
+            else:
                 endlineno = '?'
-#            startlineno = startlineno is not None and startlineno+offset or '?'
+#           startlineno = startlineno is not None and startlineno+offset or '?'
 #            endlineno = endlineno is not None and endlineno+offset or '?'
             return str(self.__class__) + \
-                   ': [%s:%s] - %s' % (str(startlineno),
-                                       str(endlineno),
-                                       str(self.nodelevel))
+                ': [%s:%s] - %s' % (str(startlineno),
+                                    str(endlineno),
+                                    str(self.nodelevel))
         except Exception, e:
             # happens if node was created manually
             return str(self.__class__) + ': [?:?] - %s' % str(self.nodelevel)
@@ -181,7 +181,7 @@ class Module(PythonNode):
         if path.find(os.path.sep) != -1:
             return path
         if self.__parent__ is None \
-          or not IDirectory.providedBy(self.__parent__):
+                or not IDirectory.providedBy(self.__parent__):
             raise Incomplete, u"Could not verify file path."
         return os.path.join(*self.path)
 
@@ -267,20 +267,21 @@ class Docstring(PythonNode, _TextMixin):
         buf = self.buffer
         n = end - 1
         if (buf[n].find(u'"""') != -1 or buf[n].find(u"'''") != -1) \
-          and (buf[n].strip().endswith(u'"""') \
-          or buf[n].strip().endswith(u"'''")) \
-          and not len(buf[n].strip()) == 3:
+                and \
+           (buf[n].strip().endswith(u'"""') or
+                buf[n].strip().endswith(u"'''")) \
+                and not len(buf[n].strip()) == 3:
             return n + 1
         while n > 0:
             n -= 1
-            if buf[n].find(u'"""') != -1 \
-              or buf[n].find(u"'''") != -1:
+            if buf[n].find(u'"""') != -1 or buf[n].find(u"'''") != -1:
                 return n + 1
 
     def _get_bufstart(self):
         return self.startlineno - 1
 
-    def _set_bufstart(self, lineno): pass
+    def _set_bufstart(self, lineno):
+        pass
 
     bufstart = property(_get_bufstart, _set_bufstart)
 
@@ -390,7 +391,8 @@ class Import(PythonNode):
             bufno += 1
         return bufno + 1
 
-    def _set_bufend(self, lineno): pass
+    def _set_bufend(self, lineno):
+        pass
 
     bufend = property(_get_bufend, _set_bufend)
 
@@ -403,7 +405,7 @@ class Import(PythonNode):
         if self.astnode is None:
             return True
         if self.names != self._names_orgin \
-          or self.fromimport != self._fromimport_orgin:
+                or self.fromimport != self._fromimport_orgin:
             return True
         return False
 
@@ -430,24 +432,24 @@ class CallableArguments(object):
             # a def like arge=[1,2,3],args=33 would break with just splitting by ','
 
             #make call out of it because then ast gives the comma the smallest prio
-            fcalls='dummy(%s)' % self.s_kwargs.strip()
-            call=ast.parse(fcalls).body[0].value
-            keywords=call.keywords
+            fcalls = 'dummy(%s)' % self.s_kwargs.strip()
+            call = ast.parse(fcalls).body[0].value
+            keywords = call.keywords
             _kwargs = odict()
 
-            for i,kw in zip(range(len(keywords)),keywords):
-                key=kw.arg
-                offset=kw.value.col_offset
+            for i, kw in zip(range(len(keywords)), keywords):
+                key = kw.arg
+                offset = kw.value.col_offset
 
-                if i < len(keywords)-1: #not the last rec
-                    nextoffset=keywords[i+1].value.col_offset
-                    val=fcalls[offset:nextoffset]
+                if i < len(keywords)-1:  # not the last rec
+                    nextoffset = keywords[i+1].value.col_offset
+                    val = fcalls[offset:nextoffset]
                     #step back to the last comma
-                    val=val[:val.rfind(',')]
-                else: # for the last one we chop off the trailing ')'
-                    val=fcalls[offset:-1]
+                    val = val[:val.rfind(',')]
+                else:  # for the last one we chop off the trailing ')'
+                    val = fcalls[offset:-1]
 
-                _kwargs[key]=val
+                _kwargs[key] = val
         else:
             _kwargs = self.kwargs
         return _args, _kwargs
@@ -466,12 +468,13 @@ class CallableArguments(object):
                 return False
         return True
 
+
 class Decorable:
     '''mixin for decorables (Function,Attribute,Class'''
     implements(IDecorable)
 
     def __init__(self):
-        self._decorators=list()
+        self._decorators = list()
 
     def decorators(self, name=None):
         decorators = [d for d in self.filtereditems(IDecorator)]
@@ -513,12 +516,13 @@ class Attribute(PythonNode, CallableArguments):
         if self.s_args or self.s_kwargs:
             return True
         if self.args != self._args_orgin \
-          or self.kwargs != self._kwargs_orgin:
+                or self.kwargs != self._kwargs_orgin:
             return True
         return False
 
     def __repr__(self):
         return '<Attribute object %s at %s>' % (self.targets, self.name)
+
 
 class Decorator(PythonNode, CallableArguments):
     implements(IDecorator)
@@ -535,7 +539,7 @@ class Decorator(PythonNode, CallableArguments):
 
     def equals(self, other):
         if self.decoratorname == other.decoratorname \
-          and self.arguments_equal(other):
+                and self.arguments_equal(other):
             return True
         return False
 
@@ -556,7 +560,8 @@ class Decorator(PythonNode, CallableArguments):
             bufno += 1
         return bufno + 1
 
-    def _set_bufend(self, lineno): pass
+    def _set_bufend(self, lineno):
+        pass
 
     bufend = property(_get_bufend, _set_bufend)
 
@@ -573,7 +578,7 @@ class Decorator(PythonNode, CallableArguments):
         if self.s_args or self.s_kwargs:
             return True
         if self.args != self._args_orgin \
-          or self.kwargs != self._kwargs_orgin:
+                or self.kwargs != self._kwargs_orgin:
             return True
         return False
 
@@ -620,7 +625,7 @@ class Function(PythonNode, CallableArguments, Decorable):
         if self.s_args or self.s_kwargs:
             return True
         if self.args != self._args_orgin \
-          or self.kwargs != self._kwargs_orgin:
+                or self.kwargs != self._kwargs_orgin:
             return True
         return False
 
