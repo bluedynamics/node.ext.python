@@ -29,6 +29,8 @@ from node.ext.python.interfaces import (
 
 
 class PythonNode(OrderedNode):
+    """A Node for Python code.
+    """
     __metaclass__ = plumber
     __plumbing__ = Reference, Order
 
@@ -147,6 +149,8 @@ class PythonNode(OrderedNode):
 
 
 class Module(PythonNode):
+    """A Python Module Node: abstract representation of a python module.
+    """
     implements(IModule)
 
     # flag to turn off parsing on __init__. Needed by test.
@@ -225,6 +229,8 @@ class _TextMixin(object):
 
 
 class Docstring(PythonNode, _TextMixin):
+    """A Node for a docstring.
+    """
     implements(IDocstring)
 
     def __init__(self, text=None, astnode=None, buffer=[]):
@@ -287,6 +293,9 @@ class Docstring(PythonNode, _TextMixin):
 
 
 class ProtectedSection(PythonNode, _TextMixin):
+    """A Node for a protected section:
+    Some code that will not be overwritten.
+    """
     implements(IProtectedSection)
 
     def __init__(self, sectionname=None, buffer=[]):
@@ -322,6 +331,8 @@ class ProtectedSection(PythonNode, _TextMixin):
 
 
 class Block(PythonNode, _TextMixin):
+    """A Node for a block of code.
+    """
     implements(IBlock)
 
     def __init__(self, text=None, buffer=[]):
@@ -373,6 +384,8 @@ class Block(PythonNode, _TextMixin):
 
 
 class Import(PythonNode):
+    """A Node for an import statement.
+    """
     implements(IImport)
 
     def __init__(self, fromimport=None, names=[], astnode=None, buffer=[]):
@@ -411,6 +424,8 @@ class Import(PythonNode):
 
 
 class CallableArguments(object):
+    """A Node for callable arguments.
+    """
     implements(ICallableArguments)
 
     UNSET = object()
@@ -488,6 +503,8 @@ class Decorable:
 
 
 class Attribute(PythonNode, CallableArguments):
+    """A Node for attributes.
+    """
     implements(IAttribute)
 
     def __init__(self, targets=list(), value=None, astnode=None, buffer=[]):
@@ -525,6 +542,8 @@ class Attribute(PythonNode, CallableArguments):
 
 
 class Decorator(PythonNode, CallableArguments):
+    """A Node for a decorator.
+    """
     implements(IDecorator)
 
     def __init__(self, decoratorname=None, astnode=None, buffer=[]):
@@ -584,6 +603,8 @@ class Decorator(PythonNode, CallableArguments):
 
 
 class Function(PythonNode, CallableArguments, Decorable):
+    """A Node for a function.
+    """
     implements(IFunction)
 
     def __init__(self, functionname=None, astnode=None, buffer=[]):
@@ -631,6 +652,8 @@ class Function(PythonNode, CallableArguments, Decorable):
 
 
 class Class(PythonNode, Decorable):
+    """A Node for a python class.
+    """
     implements(IClass)
 
     def __init__(self, classname=None, astnode=None, buffer=[]):
