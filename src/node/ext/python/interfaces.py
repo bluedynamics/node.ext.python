@@ -118,7 +118,7 @@ class IAttribute(IPythonNode):
 
 
 class ICallableArguments(Interface):
-    """Arguments of a callable, usually a decosrator or a function.
+    """Arguments of a callable, usually a decorator or a function.
     """
 
     args = Attribute(u"The callable arguments")
