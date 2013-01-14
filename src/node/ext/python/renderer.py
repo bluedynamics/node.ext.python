@@ -1,6 +1,3 @@
-# Copyright BlueDynamics Alliance - http://bluedynamics.com
-# GNU General Public License Version 2
-
 import os
 from odict import odict
 from zope.component.interfaces import ComponentLookupError
@@ -20,13 +17,13 @@ from interfaces import (
 
 
 class BaseRenderer(object):
-    
+
     def __init__(self, model):
         self.model = model
-    
+
     def __call__(self):
         raise NotImplemented(u'BaseRenderer does not implement ``__call__``')
-    
+
     def _calcpostlf(self, values):
         valuecount = len(values)
         sametype = False
@@ -57,11 +54,9 @@ class BaseRenderer(object):
 
 
 class ModuleRenderer(BaseRenderer):
-    
     CODING = u'# -*- coding: %s -*-\n'
-    
     _write_file = True
-    
+
     def __call__(self):
         enc = self.CODING % self.model.encoding
         values = self.model.values()
@@ -80,7 +75,7 @@ class ModuleRenderer(BaseRenderer):
 
 
 class DocstringRenderer(BaseRenderer):
-    
+
     def __call__(self):
         line = ''
         lines = self.model.lines
@@ -98,7 +93,7 @@ class DocstringRenderer(BaseRenderer):
 
 
 class ProtectedSectionRenderer(BaseRenderer):
-    
+
     def __call__(self):
         if self.model.sectionname is None:
             raise Incomplete, u"Incomplete protected section definition."
@@ -120,7 +115,7 @@ class ProtectedSectionRenderer(BaseRenderer):
 
 
 class BlockRenderer(BaseRenderer):
-    
+
     def __call__(self):
         indent = self.model.nodelevel * 4 * u' '
         lines = [u'%s%s' % (indent, l) for l in self.model.lines]
@@ -131,7 +126,7 @@ class BlockRenderer(BaseRenderer):
 
 
 class ImportRenderer(BaseRenderer):
-    
+
     def __call__(self):
         if not self.model.names:
             raise Incomplete, u"Incomplete import definition."
@@ -171,34 +166,33 @@ class ImportRenderer(BaseRenderer):
 
 
 class ArgumentRenderer(object):
-
     LIMIT = 80
-    
+
     def __init__(self, model=None):
         self.model = model
         self._startlen_exeeds = False
         self._arglines = None
         self._startlen = None
         self._defaultlen = None
-    
+
     def render_arg(self, arg):
         if isinstance(arg, Call):
             return self.resolve_call(arg)
         return unicode(arg) # XXX encoding
-    
+
     def render_kwarg(self, kw, arg):
         if isinstance(arg, Call):
             return u'%s=%s' % (kw, self.resolve_call(arg))
         if kw.startswith('**'):
             return unicode(kw)
         return u'%s=%s' % (kw, unicode(arg)) # XXX encoding
-    
+
     def resolve_call(self, call):
         ret = '%s(' % call['name']
         args = [self.render_arg(a) for a in call['args']]
         kwargs = [self.render_kwarg(kw, a) for kw, a in call['kwargs'].items()]
         return '%s%s)' % (ret, ', '.join(args + kwargs))
-    
+
     def render_arguments(self, indent, baselen, args=[], kwargs=odict()):
         self._arglines = list()
         arguments = list()
@@ -224,7 +218,7 @@ class ArgumentRenderer(object):
         if not self._arglines:
             return u''
         return u',\n'.join(self._arglines)
-    
+
     def _resolve_arglines(self, arguments, indent, from_inner=False):
         if not from_inner:
             reflen = self._startlen
@@ -266,10 +260,10 @@ class ArgumentRenderer(object):
 
 
 class AttributeRenderer(BaseRenderer, ArgumentRenderer):
-    
+
     def __init__(self, model):
         ArgumentRenderer.__init__(self, model)
-    
+
     def __call__(self):
         if not self.model.targets or self.model.value is None:
             raise Incomplete, u"Incomplete attribute definition."
@@ -302,10 +296,10 @@ class AttributeRenderer(BaseRenderer, ArgumentRenderer):
 
 
 class DecoratorRenderer(BaseRenderer, ArgumentRenderer):
-    
+
     def __init__(self, model):
         ArgumentRenderer.__init__(self, model)
-    
+
     def __call__(self):
         if self.model.decoratorname is None:
             raise Incomplete, u"Incomplete decorator definition."
@@ -326,15 +320,14 @@ class DecoratorRenderer(BaseRenderer, ArgumentRenderer):
 
 
 class FunctionRenderer(BaseRenderer, ArgumentRenderer):
-    
+
     def __init__(self, model):
         ArgumentRenderer.__init__(self, model)
-    
+
     def __call__(self):
         if self.model.functionname is None:
-            raise Incomplete, u"Incomplete function definition."
-        
-        showNotImplemented=True
+            raise Incomplete(u"Incomplete function definition.")
+        showNotImplemented = True
         ret = list()
         for decorator in self.model.filtereditems(IDecorator):
             ret.append(decorator())
@@ -344,20 +337,23 @@ class FunctionRenderer(BaseRenderer, ArgumentRenderer):
         indent = level * 4 * u' '
         base_str = u'def %s(' % name
         rfunc = u'%s%s' % (indent, base_str)
-        parent=self.model.__parent__
-        #XXX: to be tested, if the deactivation of the next 2 lines doesnt break 
-        #if not IClass.providedBy(parent) and u'self' in args:
-        #args = args[1:]
+        parent = self.model.__parent__
+        # XXX: to be tested, if the deactivation of the next 2 lines doesnt
+        # break ->
+        # if not IClass.providedBy(parent) and u'self' in args:
+        #     args = args[1:]
         if IClass.providedBy(parent):
-            #add self to methods, but only if the class is not an interface
+            # add self to methods, but only if the class is not an interface
             try:
-                isInterface=token(str(parent.uuid),False,isInterface=False).isInterface
+                isInterface = token(str(parent.uuid),
+                                    False, isInterface=False).isInterface
             except ComponentLookupError:
-                isInterface=False
+                isInterface = False
             if not isInterface  and not u'self' in args:
                 args = [u'self'] + args
             else:
-                showNotImplemented=False #interface methods are empty on purpose
+                # interface methods are empty on purpose
+                showNotImplemented = False
         rargs = self.render_arguments(level, len(name) + 5, args, kwargs)
         rfunc = u'%s%s):\n' % (rfunc, rargs)
         ret.append(rfunc)
@@ -368,19 +364,18 @@ class FunctionRenderer(BaseRenderer, ArgumentRenderer):
             ret.append(child())
         if not values:
             if showNotImplemented:
-                ret.append(u'%s    raise NotImplementedError, "stub generated by AGX."\n' % indent)
+                ret.append(u'%s    raise NotImplementedError("stub generated by AGX.")\n' % indent)
             else:
                 ret.append(u'%s    pass\n' % indent)
-                
         ret += [u'\n' for i in range(self.model.postlf)]
         return u''.join(ret)
 
 
 class ClassRenderer(BaseRenderer, ArgumentRenderer):
-    
+
     def __call__(self):
         if self.model.classname is None:
-            raise Incomplete, u"Incomplete class definition."
+            raise Incomplete(u"Incomplete class definition.")
         ret = list()
         for decorator in self.model.filtereditems(IDecorator):
             ret.append(decorator())

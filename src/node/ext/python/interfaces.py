@@ -1,6 +1,3 @@
-# Copyright BlueDynamics Alliance - http://bluedynamics.com
-# GNU General Public License Version 2
-
 from zope.interface import (
     Interface,
     Attribute,
@@ -10,6 +7,7 @@ from node.interfaces import (
     ICallable,
 )
 from node.ext.directory.interfaces import IFile
+
 
 CODESECTION_STARTTOKEN = '##code-section '
 CODESECTION_ENDTOKEN = '##/code-section '
@@ -70,7 +68,6 @@ class IPythonNode(INode, ICallable):
 class IModule(IFile, IPythonNode):
     """Python module.
     """
-
     modulename = Attribute(u"The name of the module.")
     encoding = Attribute(u"The file encoding. Defaults to utf-8")
     bufoffset = Attribute(u"Number of lines stripped at the top of a "
@@ -80,7 +77,6 @@ class IModule(IFile, IPythonNode):
 class IBlock(IPythonNode):
     """Python code block.
     """
-
     lines = Attribute(u"List of code lines.")
     text = Attribute(u"block contents as text.")
 
@@ -88,7 +84,6 @@ class IBlock(IPythonNode):
 class IProtectedSection(IPythonNode):
     """Protected section.
     """
-
     lines = Attribute(u"List of code lines.")
     text = Attribute(u"block contents as text.")
 
@@ -96,7 +91,6 @@ class IProtectedSection(IPythonNode):
 class IDocstring(IPythonNode):
     """Docstring.
     """
-
     lines = Attribute(u"The doc string contents.")
     text = Attribute(u"block contents as text.")
 
@@ -104,7 +98,6 @@ class IDocstring(IPythonNode):
 class IImport(IPythonNode):
     """Import line.
     """
-
     fromimport = Attribute("The module name from import or None")
     names = Attribute(u"List of tuples containing (importname, asname)")
 
@@ -112,7 +105,6 @@ class IImport(IPythonNode):
 class IAttribute(IPythonNode):
     """Attribute.
     """
-
     targets = Attribute(u"The targets of the attribute.")
     value = Attribute(u"The attribute value.")
 
@@ -120,7 +112,6 @@ class IAttribute(IPythonNode):
 class ICallableArguments(Interface):
     """Arguments of a callable, usually a decorator or a function.
     """
-
     args = Attribute(u"The callable arguments")
     kwargs = Attribute(u"The callable kwarguments")
     s_args = Attribute(u"The callable arguments as string")
@@ -141,7 +132,6 @@ class ICallableArguments(Interface):
 class IDecorator(IPythonNode, ICallableArguments):
     """Decorator.
     """
-
     decoratorname = Attribute(u"The name of the decorator.")
 
     def equals(other):
@@ -150,13 +140,13 @@ class IDecorator(IPythonNode, ICallableArguments):
 
 
 class IDecorable(Interface):
-    '''decorable nodes (currently Function, Class'''
+    """Decorable nodes (currently Function, Class).
+    """
 
 
 class IFunction(IPythonNode, ICallableArguments):
     """Python function.
     """
-
     functionname = Attribute(u"Name of the function")
     defendlineno = Attribute(u"End line number of function def. Read-only.")
 
@@ -168,7 +158,6 @@ class IFunction(IPythonNode, ICallableArguments):
 class IClass(IPythonNode):
     """Python class.
     """
-
     classname = Attribute(u"Name of the class.")
     bases = Attribute(u"List of base classes for this class")
     defendlineno = Attribute(u"End line number of class def. Read-only.")

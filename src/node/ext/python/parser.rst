@@ -10,6 +10,7 @@ Set up a test environment. Create a temporary directory and copy
     >>> import os
     >>> modulepath = os.path.join(datadir, 'parseme.py')
 
+
 Test parsing
 ------------
 
@@ -21,13 +22,13 @@ it already exists, read and parse it::
 Disable auto parsing::
 
     >>> Module._do_parse = False
-  
+
 Factor ``Module``::
 
     >>> module = Module(modulepath)
     >>> module
     <Module object '.../parseme.py' at ...>
-  
+
 Now simulate the contents of ``Module._parse()`` and check the results. Read
 the existing file and write to ``Module._buffer``::
 
@@ -130,7 +131,7 @@ Parse Code Blocks and hook children::
     >>> module.parser._hookchildren(children)
 
 Check pointers of ``ProtectedSection``. Case filled::
-  
+
     >>> sec = sections[0]
     >>> sec.buffer[sec.bufstart:sec.bufend]
     [u'##code-section module', 
@@ -156,7 +157,7 @@ Check ``Import.parser._definitionends`` method::
     [u'import foo']
     >>> import_.parser._definitionends(11)
     True
-  
+
     >>> import_.buffer[178:185]
     [u'from foo import bar, \\', 
     u'                baz', 
@@ -192,7 +193,7 @@ Check ``Decorator.parser._definitionends`` method::
     True
     >>> decorator.parser._definitionends(168)
     True
-  
+
     >>> decorator.buffer[172:175]
     [u'@multilinedecorator(a=object,', 
     u'                    b=object(),', 
@@ -212,13 +213,13 @@ Check ``Function.parser._definitionends`` method::
     [u'def somedecoratedfunction(param):']
     >>> func.parser._definitionends(114)
     True
-  
+
     >>> func.buffer[121:125]
     [u'def multilinefunctiondef(aa,', 
     u'                         bb,', 
     u"                         cc='hello'):", 
     u'    print a, b, c']
-  
+
     >>> func.parser._definitionends(121)
     False
     >>> func.parser._definitionends(122)
@@ -234,12 +235,12 @@ Check ``Class.parser._definitionends`` method::
     [u'class SomeClass(object):']
     >>> class_.parser._definitionends(126)
     True
-  
+
     >>> class_.buffer[145:146]
     [u'class OtherClass(A, B): # some comment']
     >>> class_.parser._definitionends(145)
     True
-  
+
     >>> class_.buffer[161:163]
     [u'class MultiLineClassDef(A, B,', 
     u'                        C, D):']
@@ -254,7 +255,7 @@ Check pointers of ``Import``. Case one-liner::
     >>> imports = [i for i in module.filtereditems(IImport)]
     >>> len(imports)
     8
-  
+
     >>> imp = imports[0]
     >>> imp.buffer[imp.bufstart:imp.bufend]
     [u'import foo']
@@ -337,7 +338,7 @@ Check pointers of ``Attribute``::
     [u'param = 1']
     >>> attr.bufstart, attr.bufend, attr.startlineno, attr.endlineno, attr.indent
     (85, 86, 86, 86, 0)
-  
+
     >>> attr = module.attributes(name=u'param_3')[0]
     >>> attr.buffer[attr.bufstart:attr.bufend]
     [u'param_3 = """', 
@@ -348,7 +349,7 @@ Check pointers of ``Attribute``::
     u'}']
     >>> attr.bufstart, attr.bufend, attr.startlineno, attr.endlineno, attr.indent
     (93, 99, 94, 99, 0)
-  
+
     >>> attr = module.classes('SomeClass')[0].attributes('anotherattr')[0]
     >>> attr.buffer[attr.bufstart:attr.bufend]
     [u'    anotherattr = 1']
@@ -369,19 +370,19 @@ Check pointers of ``Decorator``. Multiple decorators, single line decorators::
     >>> func = module.functions(name='multidecoratedfunction')[0]
     >>> len(func.decorators())
     3
-  
+
     >>> deco = func.decorators(name='decorator_1')[0]
     >>> deco.buffer[deco.bufstart:deco.bufend]
     [u"@decorator_1('a')"]
     >>> deco.bufstart, deco.bufend, deco.startlineno, deco.endlineno, deco.indent
     (166, 167, 167, 167, 0)
-  
+
     >>> deco = func.decorators(name='decorator_2')[0]
     >>> deco.buffer[deco.bufstart:deco.bufend]
     [u'@decorator_2(object(1, foo=anothercall()))']
     >>> deco.bufstart, deco.bufend, deco.startlineno, deco.endlineno, deco.indent
     (167, 168, 168, 168, 0)
-  
+
     >>> deco = func.decorators(name='decorator_3')[0]
     >>> deco.buffer[deco.bufstart:deco.bufend]
     [u'@decorator_3(0)']
@@ -393,7 +394,7 @@ Check pointers of ``Decorator``. Multi line decorator::
     >>> func = module.functions(name='multilinedecorated')[0]
     >>> len(func.decorators())
     1
-  
+
     >>> deco = func.decorators()[0]
     >>> deco.buffer[deco.bufstart:deco.bufend]
     [u'@multilinedecorator(a=object,', 
@@ -424,7 +425,7 @@ Check pointers of ``Class``. Multi line class def::
     >>> class_.bufstart, class_.bufend, class_.startlineno, class_.endlineno, \
     ...     class_.defendlineno, class_.indent
     (161, 165, 162, 165, 163, 0)
-  
+
 Check pointers of ``Class``. Case comment after class def::
 
     >>> class_ = module.classes(name='OtherClass')[0]
@@ -442,7 +443,7 @@ Check pointers of ``Docstring``. Case multi line::
     >>> docstrings = [d for d in module.filtereditems(IDocstring)]
     >>> len(docstrings)
     2
-  
+
     >>> doc = docstrings[0]
     >>> doc.buffer[doc.bufstart:doc.bufend]
     [u'"""This file is used as test source for python nodes.', 
@@ -453,7 +454,7 @@ Check pointers of ``Docstring``. Case multi line::
     (4, 8, 5, 8, 0)
 
 Check pointers of ``Docstring``. Case single line::
-  
+
     >>> doc = docstrings[1]
     >>> doc.buffer[doc.bufstart:doc.bufend]
     [u"'''Another docstring.'''"]
@@ -465,7 +466,7 @@ Check pointers of ``Docstring``. Case docstring as child::
     >>> docstrings = [d for d in module.classes()[0].filtereditems(IDocstring)]
     >>> len(docstrings)
     1
-  
+
     >>> doc = docstrings[0]
     >>> doc.buffer[doc.bufstart:doc.bufend]
     [u'    """Some docstring.', 
@@ -478,7 +479,7 @@ Check the ``Module.parser._createcodeblocks`` method. Case no split::
     >>> blocks = module.parser._createcodeblocks(72, 77)
     >>> len(blocks)
     1
-  
+
     >>> block = blocks[0]
     >>> block.buffer[block.bufstart:block.bufend]
     [u'if a is True \\', 
@@ -489,7 +490,7 @@ Check the ``Module.parser._createcodeblocks`` method. Case no split::
     >>> block.bufstart, block.bufend, block.startlineno, block.endlineno, \
     ...     block.indent
     (72, 77, 73, 76, 0)
-  
+
 Check the ``Module.parser._createcodeblocks`` method. Case split::
 
     >>> module.buffer[81:86]
@@ -498,11 +499,11 @@ Check the ``Module.parser._createcodeblocks`` method. Case split::
     u'assert(1 == 1)', 
     u'', 
     u'param = 1']
-  
+
     >>> blocks = module.parser._createcodeblocks(81, 86)
     >>> len(blocks)
     2
-  
+
     >>> block = blocks[0]
     >>> block.buffer[block.bufstart:block.bufend]
     [u'    return x, y, z', 
@@ -510,7 +511,7 @@ Check the ``Module.parser._createcodeblocks`` method. Case split::
     >>> block.bufstart, block.bufend, block.startlineno, block.endlineno, \
     ...     block.indent
     (81, 83, 82, 82, 1)
-  
+
     >>> block = blocks[1]
     >>> block.buffer[block.bufstart:block.bufend]
     [u'assert(1 == 1)', 
@@ -525,7 +526,7 @@ Check the ``Module.parser._createcodeblocks`` method. Case block as child::
     >>> blocks = module.parser._createcodeblocks(148, 156)
     >>> len(blocks)
     1
-  
+
     >>> block = blocks[0]
     >>> block.buffer[block.bufstart:block.bufend]
     [u'    ', 
@@ -544,7 +545,7 @@ Check the ``Module.parser._createcodeblocks`` method. Case empty block::
 
     >>> module.buffer[196:198]
     []
-  
+
     >>> blocks = module.parser._createcodeblocks(196, 198)
     >>> len(blocks)
     0
@@ -554,12 +555,12 @@ Check the ``Module.parser._parsecodeblocks`` method::
     >>> blocks = module.parser._parsecodeblocks()
     >>> len(blocks)
     14
-  
+
     >>> def blockbystartlineno(lineno):
     ...     for block in blocks:
     ...         if block.startlineno == lineno:
     ...             return block
-  
+
     >>> block = blockbystartlineno(125)
     >>> block.buffer[block.bufstart:block.bufend]
     [u'    print a, b, c', 
@@ -567,7 +568,7 @@ Check the ``Module.parser._parsecodeblocks`` method::
     >>> block.bufstart, block.bufend, block.startlineno, block.endlineno, \
     ...     block.indent
     (124, 126, 125, 125, 1)
-  
+
     >>> block = blockbystartlineno(140)
     >>> block.buffer[block.bufstart:block.bufend]
     [u'        self.param = param', 
@@ -628,7 +629,7 @@ Case insert after 'x'::
 Case insert into 'x'::
 
     X[1..2]      
-  
+
     >>> node = TestNode('x')
     >>> node.startlineno = 1
     >>> node.endlineno = 2
@@ -640,7 +641,7 @@ Case insert into 'y'::
 
     X[1..5]
       y[2..3]      
-  
+
     >>> node = TestNode('x')
     >>> node.startlineno = 1
     >>> node.endlineno = 5
@@ -651,7 +652,7 @@ Case insert into 'y'::
     >>> node['y']._testindent = 1
     >>> node.parser._findnodeposition(3, 3, 2)
     (<TestNode object 'y' at ...>, 0)
-  
+
 Now the protected sections and blocks are added::
 
     >>> module.printtree()
@@ -727,7 +728,7 @@ Check some ``Block`` contents::
     >>> block.lines
     [u'# Copyright 2009, BlueDynamics Alliance - http://bluedynamics.com', 
     u'# GNU General Public License Version 2']
-  
+
     >>> block = blocks[1]
     >>> block.nodelevel
     0
@@ -735,20 +736,20 @@ Check some ``Block`` contents::
     u'# here we add a comment'
     >>> block.lines[-1]
     u'    i += 1'
-  
+
     >>> block = blocks[2]
     >>> block.lines[0]
     u'assert(1 == 1)'
 
 Check some ``ProtectedSection`` contents::
-  
+
     >>> from node.ext.python.interfaces import IProtectedSection
     >>> sec = [s for s in module.filtereditems(IProtectedSection)][0]
     >>> sec.nodelevel
     0
     >>> sec.lines
     [u"print 'something'"]
-  
+
     >>> sec = [s for s in \
     ...        module.classes()[0].filtereditems(IProtectedSection)][0]
     >>> sec.nodelevel
@@ -784,14 +785,14 @@ Check some ``Import`` attributes::
     >>> imp.fromimport
     >>> imp.names
     [[u'foo', None]]
-  
+
     >>> imp = imports[1]
     >>> imp.nodelevel
     0
     >>> imp.fromimport
     >>> imp.names
     [[u'bar', None], [u'baz', None]]
-  
+
     >>> imp = imports[2]
     >>> imp.nodelevel
     0
@@ -799,7 +800,7 @@ Check some ``Import`` attributes::
     u'pkg'
     >>> imp.names
     [[u'Something', None]]
-  
+
     >>> imp = imports[3]
     >>> imp.nodelevel
     0
@@ -807,7 +808,7 @@ Check some ``Import`` attributes::
     u'pkg'
     >>> imp.names
     [[u'A', None], [u'B', None]]
-  
+
     >>> imp = imports[4]
     >>> imp.nodelevel
     0
@@ -823,7 +824,7 @@ Check some ``Decorator`` contents::
     ['A']
     >>> dec.kwargs
     odict([('b', "'foo'")])
-  
+
     >>> dec = module.functions(name='multilinedecorated')[0].decorators()[0]
     >>> dec.args
     []
@@ -831,24 +832,24 @@ Check some ``Decorator`` contents::
     odict([('a', 'object'), 
     ('b', {'args': [], 'name': 'object', 'kwargs': odict()}), 
     ('c', 'None')])
-  
+
     >>> dec = module.functions(\
     ...           name=u'multidecoratedfunction')[0].decorators()[0]
     >>> dec.args
     ["'a'"]
     >>> dec.kwargs
     odict()
-  
+
     >>> dec = module.functions(\
     ...           name=u'multidecoratedfunction')[0].decorators()[1]
     >>> dec.args
     [{'args': [1], 'name': 'object', 
     'kwargs': odict([('foo', {'args': [], 'name': 'anothercall', 
     'kwargs': odict()})])}]
-  
+
     >>> dec.kwargs
     odict()
-  
+
 Check some ``Function`` contents::
 
     >>> from node.ext.python.interfaces import IFunction
@@ -856,27 +857,27 @@ Check some ``Function`` contents::
     >>> func = functions[0]
     >>> func.functionname
     'somefunction'
-  
+
     >>> func.args
     ['x', 'y', 'z']
-  
+
     >>> func.kwargs
     odict()
-  
+
     >>> func = functions[2]
     >>> func.functionname
     'multilinefunctiondef'
-  
+
     >>> func.args
     ['aa', 'bb']
-  
+
     >>> func.kwargs
     odict([('cc', "'hello'")])
-  
+
     >>> func = module.functions(name=u'functionwithdocstring')[0]
     >>> func.args
     []
-  
+
     >>> func.kwargs
     odict([('d', {"'foo'": 1}), 
     ('l', [1, 2, 3]), 
@@ -890,7 +891,7 @@ Check some ``Class`` contents::
     >>> class_ = classes[0]
     >>> class_.classname
     'SomeClass'
-  
+
     >>> class_.bases
     ['object']
 
@@ -902,70 +903,70 @@ Check pointers of the code generated by renderer tests::
     >>> module.bufstart, module.bufend, module.startlineno, module.endlineno, \
     ...     module.indent
     (0, 43, 1, 43, 0)
-    
+
     >>> doc = module.docstrings()[0]
     >>> doc.bufstart, doc.bufend, doc.startlineno, doc.endlineno, doc.indent
     (1, 5, 2, 5, 0)
-    
+
     >>> psec = module.protectedsections()[0]
     >>> psec.bufstart, psec.bufend, psec.startlineno, psec.endlineno, \
     ...     psec.indent
     (6, 9, 7, 9, 0)
-    
+
     >>> block = module.blocks()[0]
     >>> block.bufstart, block.bufend, block.startlineno, block.endlineno, \
     ...     block.indent
     (9, 13, 11, 12, 0)
-    
+
     >>> attr = module.attributes()[0]
     >>> attr.bufstart, attr.bufend, attr.startlineno, attr.endlineno, \
     ...     attr.indent
     (13, 17, 14, 17, 0)
-    
+
     >>> imp = module.imports()[0]
     >>> imp.bufstart, imp.bufend, imp.startlineno, imp.endlineno, imp.indent
     (18, 20, 19, 20, 0)
-    
+
     >>> cla = module.classes()[0]
     >>> cla.bufstart, cla.bufend, cla.startlineno, cla.endlineno, cla.indent
     (21, 38, 22, 38, 0)
-    
+
     >>> doc = cla.docstrings()[0]
     >>> doc.bufstart, doc.bufend, doc.startlineno, doc.endlineno, doc.indent
     (22, 24, 23, 24, 1)
-    
+
     >>> attr = cla.attributes()[0]
     >>> attr.bufstart, attr.bufend, attr.startlineno, attr.endlineno, \
     ...     attr.indent
     (25, 26, 26, 26, 1)
-    
+
     >>> attr = cla.attributes()[1]
     >>> attr.bufstart, attr.bufend, attr.startlineno, attr.endlineno, \
     ...     attr.indent
     (26, 30, 27, 30, 1)
-    
+
     >>> func = cla.functions()[0]
     >>> func.bufstart, func.bufend, func.startlineno, func.endlineno, \
     ...     func.indent
     (32, 38, 33, 38, 1)
-    
+
     >>> dec = func.decorators()[0]
     >>> dec.bufstart, dec.bufend, dec.startlineno, dec.endlineno, dec.indent
     (31, 32, 32, 32, 1)
-    
+
     >>> doc = func.docstrings()[0]
     >>> doc.bufstart, doc.bufend, doc.startlineno, doc.endlineno, doc.indent
     (33, 35, 34, 35, 2)
-    
+
     >>> block = func.blocks()[0]
     >>> block.bufstart, block.bufend, block.startlineno, block.endlineno, \
     ...     block.indent
     (35, 39, 36, 38, 2)
-    
+
     >>> cla = module.classes()[1]
     >>> cla.bufstart, cla.bufend, cla.startlineno, cla.endlineno, cla.indent
     (39, 43, 40, 43, 0)
-    
+
     >>> func = cla.functions()[0]
     >>> func.bufstart, func.bufend, func.startlineno, func.endlineno, \
     ...     func.indent
@@ -985,7 +986,7 @@ Create ``node.ext.directory.Directory`` instance and test the parsing handler::
     >>> module = Module()
     >>> module.printtree()
     <class 'node.ext.python.nodes.Module'>: [?:?] - -1
-    
+
     >>> directory['rendered.py'] = module
     >>> module.printtree()
     <class 'node.ext.python.nodes.Module'>: [1:43] - -1
@@ -1010,22 +1011,22 @@ Check class only containing attributes, no follow ups::
 
     >>> modulepath = os.path.join(datadir, 'class_wo_functions.py')
     >>> module = Module(modulepath)
-    
+
     >>> module.printtree()
     <class 'node.ext.python.nodes.Module'>: [1:7] - -1
       <class 'node.ext.python.nodes.Class'>: [3:7] - 0
         <class 'node.ext.python.nodes.Attribute'>: [5:5] - 1
         <class 'node.ext.python.nodes.Attribute'>: [6:6] - 1
         <class 'node.ext.python.nodes.Attribute'>: [7:7] - 1
-    
+
     >>> module.classes()[0].attributes()[-1].startlineno
     7
-    
+
     >>> module.classes()[0].attributes()[-1].bufstart
     6
-    
+
     >>> module.classes()[0].attributes()[-1].endlineno
     7
-    
+
     >>> module.classes()[0].attributes()[-1].bufend
     7

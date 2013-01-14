@@ -5,7 +5,7 @@ Test id Directory and Module etc build the correct node index::
 
     >>> from node.ext.directory import Directory
     >>> from node.ext.python import Module
-    
+
     >>> directory = Directory('/tmp')
     >>> directory['foo.py'] = Module()
     >>> len(directory.index._index)
@@ -19,43 +19,43 @@ Define print helper::
     ...     print 'EOF'
 
 Check ``CallableArguments``::
-    
+
     >>> from node.ext.python.nodes import CallableArguments
     >>> ca = CallableArguments()
     >>> ca.extract_arguments()
     ([], odict())
-    
+
     >>> ca.args = ['a', 'b']
     >>> ca.extract_arguments()
     (['a', 'b'], odict())
-    
+
     >>> ca.kwargs = {'c': 1, 'd': 2}
     >>> ca.extract_arguments()
     (['a', 'b'], {'c': 1, 'd': 2})
-    
+
     >>> ca.s_args = 'x, y'
     >>> ca.extract_arguments()
     (['x', 'y'], {'c': 1, 'd': 2})
-    
+
     >>> ca.s_kwargs = 'z=dict(foo=bar)'
     >>> ca.extract_arguments()
     (['x', 'y'], odict([('z', 'dict(foo=bar)')]))
-    
+
     >>> ca = CallableArguments()
     >>> ca.args = ['x', 'y']
     >>> ca.kwargs = {'z': 1}
-    
+
     >>> ca2 = CallableArguments()
     >>> ca2.args = ['x', 'y']
     >>> ca2.kwargs = {'z': 1}
-    
+
     >>> ca.arguments_equal(ca2)
     True
-    
+
     >>> ca.args = ['a', 'y']
     >>> ca.arguments_equal(ca2)
     False
-    
+
     >>> ca.args = ['x', 'y']
     >>> ca.kwargs = {'z': 2}
     >>> ca.arguments_equal(ca2)
@@ -79,7 +79,7 @@ Change Docstring contents::
     """
     <BLANKLINE>
     EOF
-    
+
     >>> doc.text = u'I am the Changed Docstring'
     >>> print_source(doc())
     """I am the Changed Docstring
@@ -88,7 +88,7 @@ Change Docstring contents::
     EOF
 
 Change protected section contents::
-   
+
     >>> psec = module.protectedsections()[0]
     >>> print_source(psec())
     ##code-section section-1
@@ -97,7 +97,7 @@ Change protected section contents::
     <BLANKLINE>
     <BLANKLINE>
     EOF
-    
+
     >>> psec.text = u'import os\nimport sys'
     >>> print_source(psec())
     ##code-section section-1
@@ -117,7 +117,7 @@ Change Block contents::
     <BLANKLINE>
     <BLANKLINE>
     EOF
-    
+
     >>> block.text = u'try:\n    import ldap\nexcept ImportError, e:\n    pass'
     >>> print_source(block())
     try:
@@ -138,13 +138,13 @@ Change Attribute contents::
     }
     <BLANKLINE>
     EOF
-    
+
     >>> attr.value = u'False'
     >>> print_source(attr())
     foo, bar = False
     <BLANKLINE>
     EOF
-    
+
     >>> attr.targets.remove(u'foo')
     >>> print_source(attr())
     bar = False
@@ -158,7 +158,7 @@ Change Import contents::
     import Bar, \
            Baz as XBaz
     EOF
-    
+
     >>> imp.fromimport = u'fancymod'
     >>> print_source(imp())
     from fancymod import (
@@ -167,7 +167,7 @@ Change Import contents::
     )
     <BLANKLINE>
     EOF
-    
+
     >>> imp.names = [(u'FancyClass', None)]
     >>> print_source(imp())
     from fancymod import FancyClass
@@ -181,7 +181,7 @@ Change Class contents::
     class SomeClass(Foo, Bar):
     ...
     EOF
-    
+
     >>> cla.bases = [
     ...     u'VeryVeryLongClassNameFromSomewhere',
     ...     u'VeryVeryLongClassNameFromSomewhereElse',
@@ -191,9 +191,9 @@ Change Class contents::
                     VeryVeryLongClassNameFromSomewhereElse):
     ...
     EOF
-    
+
 Change Function contents::
-    
+
     >>> func = cla.functions()[0]
     >>> print_source(func())
         @somedecorator(a)
@@ -205,14 +205,14 @@ Change Function contents::
                 bar
     <BLANKLINE>
     EOF
-    
+
     >>> func.kwargs = {}
     >>> print_source(func())
         @somedecorator(a)
         def somefunction(self, foo, bar, *args):
             ...
     EOF
-    
+
     >>> func.args = list()
     >>> print_source(func())
         @somedecorator(a)
@@ -227,13 +227,13 @@ Change Decorator contents::
         @somedecorator(a)
     <BLANKLINE>
     EOF
-    
+
     >>> dec.args = list()
     >>> print_source(dec())
         @somedecorator
     <BLANKLINE>
     EOF
-    
+
     >>> dec.kwargs = {'name': None}
     >>> print_source(dec())
         @somedecorator(name=None)
@@ -246,14 +246,14 @@ Check decorator comparison::
     >>> dec = Decorator('decname')
     >>> dec.args = ['1', '2']
     >>> dec.kwargs = {'3': 'a'}
-    
+
     >>> dec1 = Decorator('decname')
     >>> dec1.args = ['1', '2']
     >>> dec1.kwargs = {'3': 'a'}
-    
+
     >>> dec1.equals(dec)
     True
-    
+
     >>> dec.args = []
     >>> dec1.equals(dec)
     False
@@ -312,7 +312,7 @@ Write the re-parsed file again unchanged and compare output files::
     >>> path = os.path.join(datadir, 'unchanged.py')
     >>> module.__name__ = path
     >>> module()
-    
+
     >>> file = open(os.path.join(datadir, 'changed.py'))
     >>> changed = file.read()
     >>> file.close()
@@ -323,10 +323,10 @@ Write the re-parsed file again unchanged and compare output files::
     True
 
 Change path of module for node moving tests::
-    
+
     >>> path = os.path.join(datadir, 'moved.py')
     >>> module.__name__ = path
-    
+
 Move module docstring to class function::
 
     >>> name = module.docstrings()[0].__name__
@@ -420,9 +420,9 @@ Move function from class to module::
     >>> func = cla.detach(name)
     >>> func.args
     ['self']
-    
+
     >>> func.args = [] # remove self from args
-    
+
     >>> module.insertbefore(func, cla)
     >>> module.printtree()
     <class 'node.ext.python.nodes.Module'>: [1:51] - -1
@@ -525,7 +525,7 @@ Dump file and check output file::
         def otherfunction(self):
             """I am the Changed Docstring
             """
-            raise NotImplementedError, "stub generated by AGX."
+            raise NotImplementedError("stub generated by AGX.")
     <BLANKLINE>
         def addedfunc(self):
             """Added function doc

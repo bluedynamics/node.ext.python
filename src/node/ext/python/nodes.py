@@ -1,7 +1,6 @@
 import os
-from odict import odict
 import ast
-
+from odict import odict
 from plumber import plumber
 from node.behaviors import (
     Reference,
@@ -9,7 +8,7 @@ from node.behaviors import (
 )
 from node.utils import LocationIterator
 from node.base import OrderedNode
-from zope.interface import implements
+from zope.interface import implementer
 from node.ext.directory.interfaces import IDirectory
 from node.ext.python.interfaces import (
     Incomplete,
@@ -28,13 +27,12 @@ from node.ext.python.interfaces import (
 )
 
 
+@implementer(IPythonNode)
 class PythonNode(OrderedNode):
     """A Node for Python code.
     """
     __metaclass__ = plumber
     __plumbing__ = Reference, Order
-
-    implements(IPythonNode)
 
     parserfactory = None
     rendererfactory = None
@@ -148,11 +146,10 @@ class PythonNode(OrderedNode):
             return str(self.__class__) + ': [?:?] - %s' % str(self.nodelevel)
 
 
+@implementer(IModule)
 class Module(PythonNode):
     """A Python Module Node: abstract representation of a python module.
     """
-    implements(IModule)
-
     # flag to turn off parsing on __init__. Needed by test.
     _do_parse = True
 
@@ -228,10 +225,10 @@ class _TextMixin(object):
     text = property(_get_text, _set_text)
 
 
+@implementer(IDocstring)
 class Docstring(PythonNode, _TextMixin):
     """A Node for a docstring.
     """
-    implements(IDocstring)
 
     def __init__(self, text=None, astnode=None, buffer=[]):
         _TextMixin.__init__(self)
@@ -292,11 +289,11 @@ class Docstring(PythonNode, _TextMixin):
     bufstart = property(_get_bufstart, _set_bufstart)
 
 
+@implementer(IProtectedSection)
 class ProtectedSection(PythonNode, _TextMixin):
     """A Node for a protected section:
     Some code that will not be overwritten.
     """
-    implements(IProtectedSection)
 
     def __init__(self, sectionname=None, buffer=[]):
         _TextMixin.__init__(self)
@@ -330,10 +327,10 @@ class ProtectedSection(PythonNode, _TextMixin):
     lines = property(_get_lines, _TextMixin._set_lines)
 
 
+@implementer(IBlock)
 class Block(PythonNode, _TextMixin):
     """A Node for a block of code.
     """
-    implements(IBlock)
 
     def __init__(self, text=None, buffer=[]):
         _TextMixin.__init__(self)
@@ -383,10 +380,10 @@ class Block(PythonNode, _TextMixin):
         return end
 
 
+@implementer(IImport)
 class Import(PythonNode):
     """A Node for an import statement.
     """
-    implements(IImport)
 
     def __init__(self, fromimport=None, names=[], astnode=None, buffer=[]):
         PythonNode.__init__(self, None, astnode, buffer)
@@ -423,10 +420,10 @@ class Import(PythonNode):
         return False
 
 
+@implementer(ICallableArguments)
 class CallableArguments(object):
     """A Node for callable arguments.
     """
-    implements(ICallableArguments)
 
     UNSET = object()
 
@@ -444,9 +441,11 @@ class CallableArguments(object):
             _args = self.args
         if self.s_kwargs:
             # use ast to parse the kwarg definition since
-            # a def like arge=[1,2,3],args=33 would break with just splitting by ','
+            # a def like arge=[1,2,3],args=33 would break with just splitting
+            # by ','
+            # make call out of it because then ast gives the comma the
+            # smallest prio
 
-            #make call out of it because then ast gives the comma the smallest prio
             fcalls = 'dummy(%s)' % self.s_kwargs.strip()
             call = ast.parse(fcalls).body[0].value
             keywords = call.keywords
@@ -455,15 +454,15 @@ class CallableArguments(object):
             for i, kw in zip(range(len(keywords)), keywords):
                 key = kw.arg
                 offset = kw.value.col_offset
-
-                if i < len(keywords)-1:  # not the last rec
-                    nextoffset = keywords[i+1].value.col_offset
+                # not the last rec
+                if i < len(keywords) - 1:
+                    nextoffset = keywords[i + 1].value.col_offset
                     val = fcalls[offset:nextoffset]
-                    #step back to the last comma
+                    # step back to the last comma
                     val = val[:val.rfind(',')]
-                else:  # for the last one we chop off the trailing ')'
-                    val = fcalls[offset:-1]
-
+                # for the last one we chop off the trailing ')'
+                else:
+                    val = fcalls[offset: - 1]
                 _kwargs[key] = val
         else:
             _kwargs = self.kwargs
@@ -484,9 +483,10 @@ class CallableArguments(object):
         return True
 
 
+@implementer(IDecorable)
 class Decorable:
-    '''mixin for decorables (Function,Attribute,Class'''
-    implements(IDecorable)
+    """mixin for decorables (Function,Attribute,Class.
+    """
 
     def __init__(self):
         self._decorators = list()
@@ -502,15 +502,14 @@ class Decorable:
             self[decorator.uuid] = decorator
 
 
+@implementer(IAttribute)
 class Attribute(PythonNode, CallableArguments):
     """A Node for attributes.
     """
-    implements(IAttribute)
 
     def __init__(self, targets=list(), value=None, astnode=None, buffer=[]):
         PythonNode.__init__(self, None, astnode, buffer)
         CallableArguments.__init__(self)
-
         self.targets = targets
         self.value = value
         self.postlf = 0
@@ -541,10 +540,10 @@ class Attribute(PythonNode, CallableArguments):
         return '<Attribute object %s at %s>' % (self.targets, self.name)
 
 
+@implementer(IDecorator)
 class Decorator(PythonNode, CallableArguments):
     """A Node for a decorator.
     """
-    implements(IDecorator)
 
     def __init__(self, decoratorname=None, astnode=None, buffer=[]):
         PythonNode.__init__(self, None, astnode, buffer)
@@ -602,10 +601,10 @@ class Decorator(PythonNode, CallableArguments):
         return False
 
 
+@implementer(IFunction)
 class Function(PythonNode, CallableArguments, Decorable):
     """A Node for a function.
     """
-    implements(IFunction)
 
     def __init__(self, functionname=None, astnode=None, buffer=[]):
         PythonNode.__init__(self, None, astnode, buffer)
@@ -651,15 +650,14 @@ class Function(PythonNode, CallableArguments, Decorable):
         return False
 
 
+@implementer(IClass)
 class Class(PythonNode, Decorable):
     """A Node for a python class.
     """
-    implements(IClass)
 
     def __init__(self, classname=None, astnode=None, buffer=[]):
         PythonNode.__init__(self, None, astnode, buffer)
         Decorable.__init__(self)
-
         self.bases = list()
         self._bases_orgin = list()
         self.classname = classname

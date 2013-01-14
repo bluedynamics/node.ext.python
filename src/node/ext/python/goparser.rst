@@ -2,7 +2,6 @@ Python Parser
 =============
 
 ::
-
     >>> import os
     >>> modulepath = os.path.join(datadir, 'parseme.py')
     >>> from node.ext.python.goparser import GoParser
@@ -35,4 +34,3 @@ Python Parser
     ClassDef (127-144), ClassDef (146-160), ClassDef (162-165), 
     FunctionDef (170-171), FunctionDef (176-177), ImportFrom (179-180), 
     ImportFrom (182-185), Import (187-187), FunctionDef (189-194)]
-
