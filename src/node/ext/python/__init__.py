@@ -12,7 +12,9 @@ from nodes import (
 )
 from interfaces import Call
 
+
 directory.file_factories['.py'] = Module
+
 
 import parser
 Docstring.parserfactory = parser.BaseParser
@@ -24,6 +26,7 @@ Attribute.parserfactory = parser.AttributeParser
 Decorator.parserfactory = parser.DecoratorParser
 Function.parserfactory = parser.FunctionParser
 Class.parserfactory = parser.ClassParser
+
 
 import renderer
 Docstring.rendererfactory = renderer.DocstringRenderer

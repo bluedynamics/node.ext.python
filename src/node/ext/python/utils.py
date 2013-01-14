@@ -1,21 +1,21 @@
-# Copyright BlueDynamics Alliance - http://bluedynamics.com
-# GNU General Public License Version 2
-
-from node.ext.python.interfaces import IModule
-from node.ext.python.interfaces import IImport
-from node.ext.python.interfaces import IDocstring
-from node.ext.python.interfaces import IBlock
+from node.ext.python.interfaces import (
+    IModule,
+    IImport,
+    IDocstring,
+    IBlock,
+)
 from node.ext.python import Import
+
 
 class Imports(object):
     """Adapter like object for managing imports on modules.
     """
-    
+
     def __init__(self, context):
         if not IModule.providedBy(context):
             raise ValueError(u"Given context is not an IModule implementation")
         self.context = context
-    
+
     def set(self, fromimport=None, names=None):
         if fromimport is None and names is None:
             raise ValueError(u"No definitions given.")
@@ -47,7 +47,7 @@ class Imports(object):
                             imp.names[i] = name
                 else:
                     imp.names.append(name)
-    
+
     def _add(self, import_):
         values = self.context.values()
         for value in values:

@@ -17,27 +17,27 @@ Its context must be an IModule implemenation::
     Traceback (most recent call last):
       ...
     ValueError: Given context is not an IModule implementation
-    
+
     >>> from node.ext.python import Module
     >>> module = Module('somemodule.py')
     >>> module.rendererfactory._write_file = False
     >>> imp = Imports(module)
     >>> imp
     <node.ext.python.utils.Imports object at ...>
-    
+
 Add some imports::
 
     >>> imp.set()
     Traceback (most recent call last):
       ...
     ValueError: No definitions given.
-    
+
     >>> imp.set(fromimport='foo', names=[['bar', None]])
     >>> print_source(module())
     # -*- coding: utf-8 -*-
     from foo import bar
     EOF
-    
+
     >>> imp.set(fromimport='bar', names=[['baz', None]])
     >>> print_source(module())
     # -*- coding: utf-8 -*-
@@ -85,7 +85,7 @@ Add a Class to module and chack if new imports are added to top of module::
     class SomeClass(object):
         pass
     EOF
-    
+
     >>> imp.set(fromimport='insert', names=[['MyClass', None]])
     >>> print_source(module())
     # -*- coding: utf-8 -*-

@@ -1,6 +1,3 @@
-# Copyright BlueDynamics Alliance - http://bluedynamics.com
-# GNU General Public License Version 2
-
 import os
 import _ast
 import ast
@@ -44,10 +41,10 @@ POSITION_BEFORE = -1
 
 
 class BaseParser(object):
-    
+
     def __init__(self, model):
         self.model = model
-    
+
     def __call__(self):
         raise NotImplemented(u'BaseParser does not implement ``__call__``')
 
@@ -84,12 +81,12 @@ class BaseParser(object):
                 attribute = Attribute([], None, astnode, self.model.buffer)
                 attribute.readlines = self.model.readlines
                 self.model[str(attribute.uuid)] = attribute
-    
+
     def _marklines(self, *args):
         for arg in args:
             if not arg in self.model.readlines:
                 self.model.readlines.append(arg)
-    
+
     def _findbodyend(self, node):
         if not hasattr(node, '_fields'):
             return
@@ -102,7 +99,7 @@ class BaseParser(object):
                     if field.lineno > self.model.bufend:
                         self.model.bufend = field.lineno
                 self._findbodyend(field)
-    
+
     def _checkbodyendsmultilined(self):
         pointer = self.model.bufend
         buflen = len(self.model.buffer)
@@ -118,14 +115,14 @@ class BaseParser(object):
             except SyntaxError, e:
                 pointer += 1
         self.model.bufend = pointer
-    
+
     def _checkbodyendsprotected(self):
         pointer = self.model.bufend
         if pointer < len(self.model.buffer) - 1:
             next = self.model.buffer[pointer].strip()
             if next.startswith(CODESECTION_ENDTOKEN):
                 self.model.bufend += 1
-    
+
     def _findnodeposition(self, startlineno, endlineno, indent):
         values = [v for v in self.model.values() \
                   if not IDecorator.providedBy(v)]
@@ -147,7 +144,7 @@ class BaseParser(object):
         if last.indent == indent:
             return last, POSITION_AFTER
         return self.model, POSITION_AFTER
-    
+
     def _findindent(self, lines):
         indent = None
         for line in lines:
@@ -163,10 +160,10 @@ class BaseParser(object):
         if indent is None:
             return None
         return indent / 4 # XXX improve
-    
+
     def _cutline(self, line):
         return line[self.model.indent * 4:] # XXX improve
-    
+
     def _resolvearg(self, arg):
         if isinstance(arg, _ast.Str):
             return repr(arg.s)
@@ -208,16 +205,18 @@ class BaseParser(object):
             decorator.readlines = self.model.readlines
             self.model._decorators.append(decorator)
 
+
 def parse_module_handler(obj, event):
     """Called, if ``Module`` is created and added to ``Directory`` node.
     """
     obj.parser()
 
+
 provideHandler(parse_module_handler, [IModule, IFileAddedEvent])
 
 
 class ModuleParser(BaseParser):
-    
+
     def __call__(self):
         path = self.model.filepath
         self.model._buffer = list()
@@ -225,7 +224,7 @@ class ModuleParser(BaseParser):
             return
         if self.model._do_parse:
             self._parse()
-    
+
     def _parse(self):
         file = open(self.model.filepath, 'r')
         cont = file.read()
@@ -245,7 +244,9 @@ class ModuleParser(BaseParser):
         self.model.bufend = len(self.model._buffer)
         self.model.bufoffset = offset
         try:
-            self.model.astnode = ast.parse(os.linesep.join(self.model.buffer).strip(), self.model.filepath)
+            self.model.astnode = ast.parse(
+                os.linesep.join(self.model.buffer).strip(),
+                self.model.filepath)
         except SyntaxError, e:
             # Since the python source files are being stripped we have to
             # add an offset to the line number we get thrown from compile()
@@ -267,7 +268,7 @@ class ModuleParser(BaseParser):
         self._markastrelated(self.model)
         children += self._parsecodeblocks()
         self._hookchildren(children)
-    
+
     def _extractencoding(self):
         if len(self.model.buffer) == 0:
             return
@@ -277,7 +278,7 @@ class ModuleParser(BaseParser):
             encoding = line[14:len(line) - 3].strip()
             self.model.encoding = unicode(encoding)
             self.model.readlines.append(0)
-    
+
     def _markastrelated(self, node):
         for child in node.values():
             if IDocstring.providedBy(child) \
@@ -288,7 +289,7 @@ class ModuleParser(BaseParser):
             else:
                 self._marklines(*range(child.bufstart, child.defendlineno))
             self._markastrelated(child)
-    
+
     def _protectedsections(self):
         i = 0
         currentnode = None
@@ -328,7 +329,7 @@ class ModuleParser(BaseParser):
             raise RuntimeError, \
                   "ERROR: Protected section did not close"
         return allnodes
-    
+
     def _parsecodeblocks(self):
         blocks = list()
         start = end = 0
@@ -344,7 +345,7 @@ class ModuleParser(BaseParser):
             end = curline
         blocks += self._createcodeblocks(start, end)
         return blocks
-    
+
     def _createcodeblocks(self, start, end):
         lines = self.model.buffer[start:end]
         if not ''.join(lines).strip():
@@ -375,7 +376,7 @@ class ModuleParser(BaseParser):
         block.bufend = end
         ret.append(block)
         return ret
-    
+
     def _hookchildren(self, children):
         for child in children:
             if not child.__name__:
@@ -394,7 +395,7 @@ class ModuleParser(BaseParser):
 
 
 class ImportParser(BaseParser):
-    
+
     def __call__(self):
         astnode = self.model.astnode
         if isinstance(astnode, _ast.ImportFrom):
@@ -404,7 +405,7 @@ class ImportParser(BaseParser):
             self.model.names.append([unicode(name.name), asname])
         self.model._fromimport_orgin = copy.deepcopy(self.model.fromimport)
         self.model._names_orgin = copy.deepcopy(self.model.names)
-    
+
     def _definitionends(self, bufno):
         if len(self.model.buffer) < bufno:
             return True
@@ -422,7 +423,7 @@ class ImportParser(BaseParser):
 
 
 class AttributeParser(BaseParser):
-    
+
     def __call__(self):
         astnode = self.model.astnode
         for target in astnode.targets:
@@ -443,7 +444,7 @@ class AttributeParser(BaseParser):
         self._parseastargs(astnode)
         self.model._args_orgin = copy.deepcopy(self.model.args)
         self.model._kwargs_orgin = copy.deepcopy(self.model.kwargs)
-    
+
     def _findattributeend(self):
         pointer = self.model.bufstart
         buflen = len(self.model.buffer)
@@ -461,7 +462,7 @@ class AttributeParser(BaseParser):
             except SyntaxError, e:
                 pointer += 1
         self.model.bufend = pointer
-    
+
     def _extractvalue(self):
         lines = self.model.buffer[self.model.bufstart:self.model.bufend]
         if not lines:
@@ -471,7 +472,7 @@ class AttributeParser(BaseParser):
             lines[i] = self._cutline(lines[i])
         self.model.value = '\n'.join(lines)
         self.model._value_orgin = '\n'.join(lines)
-    
+
     def _parseastargs(self, astnode):
         if not hasattr(astnode.value, 'args'):
             return
@@ -482,31 +483,32 @@ class AttributeParser(BaseParser):
 
 
 class DecoratorParser(BaseParser):
-    
+
     def __call__(self):
         astnode = self.model.astnode
         if isinstance(astnode, _ast.Name) or isinstance(astnode, _ast.Attribute):
-            if not getattr(astnode,'id',None):
-                astnode.id=astnode.attr #XXX added by phil because sometimes astnode.id is None
+            if not getattr(astnode, 'id', None):
+                # XXX: added by phil because sometimes astnode.id is None
+                astnode.id = astnode.attr
             self.model.decoratorname = astnode.id
             self.model._decoratorname_orgin = astnode.id
             return
 
-        if not getattr(astnode.func,'id',None):
-            astnode.func.id=astnode.func.attr #XXX added by phil because sometimes astnode.func.id is None
-            
+        if not getattr(astnode.func, 'id', None):
+            # XXX: added by phil because sometimes astnode.func.id is None
+            astnode.func.id = astnode.func.attr
         self.model.decoratorname = astnode.func.id
         self.model._decoratorname_orgin = astnode.func.id
         self._parseastargs(astnode)
         self.model._args_orgin = copy.deepcopy(self.model.args)
         self.model._kwargs_orgin = copy.deepcopy(self.model.kwargs)
-    
+
     def _parseastargs(self, astnode):
         for arg in astnode.args:
             self.model.args.append(self._resolvearg(arg))
         for keyword in astnode.keywords:
             self.model.kwargs[keyword.arg] = self._resolvearg(keyword.value)
-    
+
     def _definitionends(self, bufno):
         if len(self.model.buffer) <= bufno:
             return True
@@ -518,7 +520,7 @@ class DecoratorParser(BaseParser):
 
 
 class FunctionParser(BaseParser):
-    
+
     def __call__(self):
         astnode = self.model.astnode
         self.model.functionname = astnode.name
@@ -529,7 +531,7 @@ class FunctionParser(BaseParser):
         self.model._args_orgin = copy.deepcopy(self.model.args)
         self.model._kwargs_orgin = copy.deepcopy(self.model.kwargs)
         self.parsedecorators(astnode)
-        
+
     def _parseastargs(self, astnode):
         all = list()
         for arg in astnode.args.args:
@@ -548,7 +550,7 @@ class FunctionParser(BaseParser):
             self.model.args.append('*%s' % astnode.args.vararg)
         if astnode.args.kwarg:
             self.model.kwargs['**%s' % astnode.args.kwarg] = None
-    
+
     def _definitionends(self, bufno):
         if len(self.model.buffer) <= bufno:
             return True
@@ -564,7 +566,7 @@ class FunctionParser(BaseParser):
 
 
 class ClassParser(BaseParser):
-    
+
     def __call__(self):
         astnode = self.model.astnode
         self.model.classname = astnode.name
@@ -584,9 +586,8 @@ class ClassParser(BaseParser):
             return '.'.join(name)
         self.model.bases = [base_name(base) for base in astnode.bases]
         self.model._bases_orgin = copy.deepcopy(self.model.bases)
-
         self.parsedecorators(astnode)
-    
+
     def _definitionends(self, bufno):
         if len(self.model.buffer) <= bufno:
             return True

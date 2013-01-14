@@ -1,6 +1,7 @@
 Python Renderers
 ================
 
+
 Setup
 -----
 
@@ -44,38 +45,38 @@ Check Module::
     u'# -*- coding: utf-8 -*-'
 
 Check Docstring::
-  
+
     >>> docstring = Docstring()
     >>> print_source(docstring())
     """
     """
     <BLANKLINE>
     EOF
-    
+
     >>> docstring.lines
     []
-    
+
     >>> docstring.text
     u''
-    
+
     >>> docstring.text = u'\n\n\na\nb\n\n\n\n'
     >>> docstring.text
     u'a\nb'
-    
+
     >>> docstring.lines = [u'a', u'b', u'c']
     >>> docstring.lines
     [u'a', u'b', u'c']
-    
+
     >>> docstring.text
     u'a\nb\nc'
-    
+
     >>> docstring.text = u'I am a docstring.\n\nSome Documentation.'
     >>> docstring.text
     u'I am a docstring.\n\nSome Documentation.'
-    
+
     >>> docstring.lines
     [u'I am a docstring.', u'', u'Some Documentation.']
-    
+
     >>> print_source(docstring())
     """I am a docstring.
     <BLANKLINE>
@@ -94,14 +95,14 @@ Add docstring to module and render::
     Some Documentation.
     """
     EOF
-    
+
 Check ProtectedSection::
-  
+
     >>> ProtectedSection()()
     Traceback (most recent call last):
       ...
     Incomplete: Incomplete protected section definition.
-    
+
     >>> sec = ProtectedSection('section-1')
     >>> print_source(sec())
     ##code-section section-1
@@ -109,27 +110,27 @@ Check ProtectedSection::
     <BLANKLINE>
     <BLANKLINE>
     EOF
-    
+
     >>> sec.lines
     []
-    
+
     >>> sec.text
     u''
-    
+
     >>> sec.lines = [u'a', u'b', u'c']
     >>> sec.lines
     [u'a', u'b', u'c']
-    
+
     >>> sec.text
     u'a\nb\nc'
-    
+
     >>> sec.text = u'from foo import bar'
     >>> sec.text
     u'from foo import bar'
-    
+
     >>> sec.lines
     [u'from foo import bar']
-    
+
     >>> print_source(sec())
     ##code-section section-1
     from foo import bar
@@ -157,27 +158,27 @@ Check Block::
     >>> block = Block()
     >>> block()
     u''
-    
+
     >>> block.lines
     []
-    
+
     >>> block.text
     u''
-    
+
     >>> block.lines = [u'a', u'b', u'c']
     >>> block.lines
     [u'a', u'b', u'c']
-    
+
     >>> block.text
     u'a\nb\nc'
-    
+
     >>> block.text = u'if foo is None:\n    foo = 0'
     >>> block.text
     u'if foo is None:\n    foo = 0'
-    
+
     >>> block.lines
     [u'if foo is None:', u'    foo = 0']
-    
+
     >>> print_source(block())
     if foo is None:
         foo = 0
@@ -208,7 +209,7 @@ Check Attribute::
     Traceback (most recent call last):
       ...
     Incomplete: Incomplete attribute definition.
-    
+
     >>> attribute = Attribute(['foo', 'bar'],
     ...                       u'{\n    \'x\': 1,\n    \'y\': 2,\n}')
     >>> print_source(attribute())
@@ -247,19 +248,19 @@ Check Import::
     Traceback (most recent call last):
       ...
     Incomplete: Incomplete import definition.
-    
+
     >>> import_ = Import(u'foo')
     >>> import_()
     Traceback (most recent call last):
       ...
     Incomplete: Incomplete import definition.
-    
+
     >>> import_.names = [('Bar', None)]
     >>> print_source(import_())
     from foo import Bar
     <BLANKLINE>
     EOF
-    
+
     >>> import_.names = [
     ... ('Bar', None),
     ... ('Bat', None),
@@ -273,7 +274,7 @@ Check Import::
     )
     <BLANKLINE>
     EOF
-    
+
     >>> import_.names = [
     ... ('Bar', 'XBar'),
     ... ('Bat', 'XBat'),
@@ -287,7 +288,7 @@ Check Import::
     )
     <BLANKLINE>
     EOF
-    
+
     >>> import_.fromimport = None
     >>> import_.names = [
     ... ('Bar', None),
@@ -322,7 +323,7 @@ Add import to module and render::
     import Bar, \
            Baz as XBaz
     EOF
-    
+
 Check ArgumentRenderer Mixin class.
 
 The ``render_arg`` and ``render_kwarg`` functions::
@@ -347,7 +348,7 @@ The ``render_arg`` and ``render_kwarg`` functions::
     u'None'
     >>> ar.render_kwarg('name', None)
     u'name=None'
-    
+
     >>> from node.ext.python import Call
     >>> call = Call(name='SomeObj', args=[1, 2, 3], kwargs=dict(foo='"bar"'))
     >>> ar.render_arg(call)
@@ -371,7 +372,7 @@ attributes are calculated properly::
     30
     >>> ar._defaultlen
     70
-    
+
     >>> dummy = ar.render_arguments(3, 50, [19 * 'a'])
     >>> ar._startlen_exeeds
     True
@@ -379,7 +380,7 @@ attributes are calculated properly::
     18
     >>> ar._defaultlen
     58
-    
+
     >>> dummy = ar.render_arguments(3, 50, [17 * 'a'])
     >>> ar._startlen_exeeds
     False
@@ -387,7 +388,7 @@ attributes are calculated properly::
     18
     >>> ar._defaultlen
     58
-    
+
     >>> dummy = ar.render_arguments(3, 50, [18 * 'a'])
     >>> ar._startlen_exeeds
     True
@@ -395,19 +396,19 @@ attributes are calculated properly::
     18
     >>> ar._defaultlen
     58
-    
+
     >>> dummy = ar.render_arguments(0, 2)
     >>> ar._startlen
     78
     >>> ar._defaultlen
     78
-    
+
     >>> dummy = ar.render_arguments(20, 10)
     >>> ar._startlen
     0
     >>> ar._defaultlen
     30
-    
+
     >>> dummy = ar.render_arguments(18, 4)
     >>> ar._arglines = list()
     >>> ar._resolve_arglines(['a'], 18)
@@ -425,7 +426,7 @@ Some tests on internal ``_resolve_arglines`` function::
     7
     >>> ar._arglines
     [u'\n', ' aaaaaaaa']
-    
+
     >>> dummy = ar.render_arguments(10, 20)
     >>> ar._arglines = list()
     >>> args = [8 * str(i) for i in range (10)]
@@ -462,51 +463,51 @@ Check Decorator::
     Traceback (most recent call last):
       ...
     Incomplete: Incomplete decorator definition.
-    
+
     >>> dec = Decorator(u'somedecorator')
     >>> print_source(dec())
     @somedecorator
     <BLANKLINE>
     EOF
-    
+
     >>> dec.args = ['a']
     >>> print_source(dec())
     @somedecorator(a)
     <BLANKLINE>
     EOF
-    
+
     >>> dec.args = ['"a"']
     >>> print_source(dec())
     @somedecorator("a")
     <BLANKLINE>
     EOF
-    
+
     >>> dec.args = ['object()']
     >>> print_source(dec())
     @somedecorator(object())
     <BLANKLINE>
     EOF
-    
+
     >>> dec.args = [1, [], {}, True]
     >>> print_source(dec())
     @somedecorator(1, [], {}, True)
     <BLANKLINE>
     EOF
-    
+
     >>> call = Call(name='SomeObj', args=[1, 2, 3], kwargs=dict(foo='"bar"'))
     >>> dec.args = [call]
     >>> print_source(dec())
     @somedecorator(SomeObj(1, 2, 3, foo="bar"))
     <BLANKLINE>
     EOF
-    
+
     >>> dec.args = ['a']
     >>> dec.kwargs = {'name': None}
     >>> print_source(dec())
     @somedecorator(a, name=None)
     <BLANKLINE>
     EOF
-    
+
     >>> dec.args = args
     >>> dec.kwargs = kwargs
     >>> dec.nodelevel
@@ -525,39 +526,39 @@ Check Function::
     Traceback (most recent call last):
       ...
     Incomplete: Incomplete function definition.
-    
+
     >>> func = Function(u'somefunction')
     >>> print_source(func())
     def somefunction():
-        raise NotImplementedError, "stub generated by AGX."
+        raise NotImplementedError("stub generated by AGX.")
     <BLANKLINE>
     EOF
-    
+
     >>> func.args = ['foo', 'bar']
     >>> func.kwargs = {'baz': False}
     >>> print_source(func())
     def somefunction(foo, bar, baz=False):
-        raise NotImplementedError, "stub generated by AGX."
+        raise NotImplementedError("stub generated by AGX.")
     <BLANKLINE>
     EOF
-    
+
     >>> func.args = ['"%s"' % (str(i) * 8) for i in range(10)]
     >>> print_source(func())
     def somefunction("00000000", "11111111", "22222222", "33333333", "44444444",
                      "55555555", "66666666", "77777777", "88888888", "99999999",
                      baz=False):
-        raise NotImplementedError, "stub generated by AGX."
+        raise NotImplementedError("stub generated by AGX.")
     <BLANKLINE>
     EOF
-    
+
     >>> func.args = ['foo', 'bar', '*args']
     >>> func.kwargs = {'**kwargs': None}
     >>> print_source(func())
     def somefunction(foo, bar, *args, **kwargs):
-        raise NotImplementedError, "stub generated by AGX."
+        raise NotImplementedError("stub generated by AGX.")
     <BLANKLINE>
     EOF
-    
+
 Add decorator to function::
 
     >>> dec.args = []
@@ -566,15 +567,15 @@ Add decorator to function::
     >>> print_source(func())
     @somedecorator
     def somefunction(foo, bar, *args, **kwargs):
-        raise NotImplementedError, "stub generated by AGX."
+        raise NotImplementedError("stub generated by AGX.")
     <BLANKLINE>
     EOF
-    
+
     >>> dec.args = ['a']
     >>> print_source(func())
     @somedecorator(a)
     def somefunction(foo, bar, *args, **kwargs):
-        raise NotImplementedError, "stub generated by AGX."
+        raise NotImplementedError("stub generated by AGX.")
     <BLANKLINE>
     EOF
 
@@ -591,14 +592,14 @@ Check Class::
         pass
     <BLANKLINE>
     EOF
-    
+
     >>> class_.bases = ['Foo', 'Bar']
     >>> print_source(class_())
     class SomeClass(Foo, Bar):
         pass
     <BLANKLINE>
     EOF
-    
+
     >>> class_.bases = [
     ...     'Aaaaaaaa',
     ...     'Bbbbbbbb',
@@ -615,9 +616,9 @@ Check Class::
         pass
     <BLANKLINE>
     EOF
-    
+
     >>> class_.bases = ['Foo', 'Bar']
-    
+
 Add function to class. Take a look at the function output, ``self`` is added to
 arguments transparently::
 
@@ -627,7 +628,7 @@ arguments transparently::
     <BLANKLINE>
         @somedecorator(a)
         def somefunction(self, foo, bar, *args, **kwargs):
-            raise NotImplementedError, "stub generated by AGX."
+            raise NotImplementedError("stub generated by AGX.")
     <BLANKLINE>
     EOF
 
@@ -644,7 +645,7 @@ Insert docstring before function. Newline behaves different::
     <BLANKLINE>
         @somedecorator(a)
         def somefunction(self, foo, bar, *args, **kwargs):
-            raise NotImplementedError, "stub generated by AGX."
+            raise NotImplementedError("stub generated by AGX.")
     <BLANKLINE>
     EOF
 
@@ -659,7 +660,7 @@ Insert Attributes before function::
          someattribute = u'somevalue'
     <BLANKLINE>
     EOF
-    
+
     >>> attr = Attribute()
     >>> attr.__name__ = u'attr-2'
     >>> attr.targets = ['otherattribute']
@@ -674,7 +675,7 @@ Insert Attributes before function::
     }
     <BLANKLINE>
     EOF
-    
+
     >>> class_.insertbefore(attr, func)
     >>> print_source(class_())
     class SomeClass(Foo, Bar):
@@ -689,10 +690,10 @@ Insert Attributes before function::
     <BLANKLINE>
         @somedecorator(a)
         def somefunction(self, foo, bar, *args, **kwargs):
-            raise NotImplementedError, "stub generated by AGX."
+            raise NotImplementedError("stub generated by AGX.")
     <BLANKLINE>
     EOF
-    
+
     >>> attr = Attribute()
     >>> attr.__name__ = u'attr-3'
     >>> attr.targets = ['attribute_with_callable']
@@ -719,7 +720,7 @@ Add Block to function::
     <BLANKLINE>
     <BLANKLINE>
     EOF
-    
+
     >>> func['block-1'] = block
     >>> print_source(func())
         @somedecorator(a)
@@ -729,7 +730,7 @@ Add Block to function::
                 bar
     <BLANKLINE>
     EOF
-    
+
 Add Docstring to function::
 
     >>> doc = Docstring()
@@ -838,7 +839,7 @@ Add another class::
     class OtherClass(object):
     <BLANKLINE>
         def otherfunction(self):
-            raise NotImplementedError, "stub generated by AGX."
+            raise NotImplementedError("stub generated by AGX.")
     EOF
 
 Write file to datadir::
