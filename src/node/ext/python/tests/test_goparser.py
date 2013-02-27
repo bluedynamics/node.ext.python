@@ -1,6 +1,5 @@
 import unittest
 
-    
 
 class TestGoParser(unittest.TestCase):
     """
@@ -37,15 +36,15 @@ class TestGoParser(unittest.TestCase):
         a = "foo = 2  # my awesome comment"
         print a
         result = mn.is_empty(a)
-        self.assertTrue(result == False)
+        self.assertFalse(False)
         a = ""
         print a
         result = mn.is_empty(a)
-        self.assertTrue(result == True)
+        self.assertTrue(result)
         a = "      "
         print a
         result = mn.is_empty(a)
-        self.assertTrue(result == True)
+        self.assertTrue(result)
 
     def tearDown(self):
         """
@@ -69,7 +68,7 @@ class TestGofooParser(unittest.TestCase):
         """
         test some aspect of foo
         """
-        self.assertTrue(1 == True)
+        self.assertTrue(1)
 
     def tearDown(self):
         """
@@ -78,7 +77,5 @@ class TestGofooParser(unittest.TestCase):
         pass
 
 
-
 if __name__ == '__main__':
     unittest.main()
-
