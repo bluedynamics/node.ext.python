@@ -48,8 +48,8 @@ class metanode(object):
 
         if parent != None:
             parent.children.append(self)
-        else:
-            parser.children.append(self)
+        # else:
+        #     parser.children.append(self)
         if do_correct:
             self.correct()
 

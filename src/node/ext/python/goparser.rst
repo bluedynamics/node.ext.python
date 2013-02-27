@@ -1,6 +1,41 @@
 Python Parser
 =============
 
+
+Define print helper::
+
+    >>> def print_source(source):
+    ...     for line in source.split('\n'):
+    ...         print line
+    ...     print 'EOF'
+
+Required imports::
+
+    >>> from node.ext.python import (
+    ...     Module,
+    ...     Docstring,
+    ...     ProtectedSection,
+    ...     Import,
+    ...     Attribute,
+    ...     Decorator,
+    ...     Function,
+    ...     Class,
+    ...     Block,
+    ... )
+
+Test attribute::
+
+    >>> attribute = Attribute(['foo', 'bar'],
+    ...                       u'{\n    \'x\': 1,\n    \'y\': 2,\n}')
+    >>> print_source(attribute())
+    foo, bar = {
+        'x': 1,
+        'y': 2,
+    }
+    <BLANKLINE>
+    EOF
+
+
 ::
     >>> import os
     >>> modulepath = os.path.join(datadir, 'parseme.py')

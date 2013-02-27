@@ -4,6 +4,10 @@
 #
 
 import re
+import sys
+from zope.component import provideHandler
+from node.ext.python.interfaces import IModule
+from node.ext.directory.interfaces import IFileAddedEvent
 from node.ext.python.goparser import GoParser
 from node.ext.python.gonodes import (
     Module,
@@ -14,7 +18,7 @@ from node.ext.python.gonodes import (
     Import,
     Decorator,
     ProtectedSection,
-    Assignment,
+    Attribute,
     Expression,
 )
 
@@ -24,7 +28,7 @@ typedefs = {
     'Docstring': 'Docstring',
     'ImportFrom': 'Import',
     'Decorator': 'Decorator',
-    'Assign': 'Assignment',  # value oder args und kwargs
+    'Assign': 'Attribute',  # value oder args und kwargs
     'Expr': 'Expression',  # @@@ Gogo. needs impl ;-)
 }
 
@@ -57,6 +61,10 @@ class Walker(object):
                 bufstart=gopnode.startline,
                 bufend=gopnode.endline,
                 )"""
+        print "-"*40
+        print call
+        print "-"*40
+        import pdb;pdb.set_trace()
         newnode = eval(call)
         return newnode
 
@@ -196,6 +204,15 @@ class Walker(object):
 
         self.cleanup(root)
         return root
+
+
+def parse_module_handler(obj, event):
+    """Called, if ``Module`` is created and added to ``Directory`` node.
+    """
+    import pdb;pdb.set_trace()
+    obj.parser()
+
+provideHandler(parse_module_handler, [IModule, IFileAddedEvent])
 
 
 def main(filename):

@@ -12,12 +12,12 @@ optionflags = doctest.NORMALIZE_WHITESPACE | \
 
 
 TESTFILES = [
-    'renderer.rst',
-    'parser.rst',
+#    'renderer.rst',
+#    'parser.rst',
     'goparser.rst',
-    'edgecases.rst',
-    'nodes.rst',
-    'utils.rst',
+#    'edgecases.rst',
+#    'nodes.rst',
+#    'utils.rst',
 ]
 
 

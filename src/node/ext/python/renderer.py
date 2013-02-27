@@ -95,9 +95,11 @@ class DocstringRenderer(BaseRenderer):
 class ProtectedSectionRenderer(BaseRenderer):
 
     def __call__(self):
-        if self.model.sectionname is None:
+        if getattr(self.model, 'sectionname', None) is None:
+            # import pdb;pdb.set_trace()
             raise Incomplete, u"Incomplete protected section definition."
-        if self.model.bufstart is not None and self.model.bufend is not None:
+        if getattr(self.model, 'bufstart', None) and \
+            getattr(self.model, 'bufend', None):
             secbegin = self.model.buffer[self.model.bufstart].strip()
             secend = self.model.buffer[self.model.bufend - 1].strip()
         else:
@@ -265,11 +267,11 @@ class AttributeRenderer(BaseRenderer, ArgumentRenderer):
         ArgumentRenderer.__init__(self, model)
 
     def __call__(self):
-        if not self.model.targets or self.model.value is None:
+        if not getattr(self.model, 'targets', False) or not getattr(self.model, 'value', False):
             raise Incomplete, u"Incomplete attribute definition."
         level = self.model.nodelevel
         indent = level * 4 * u' '
-        if not self.model._changed:
+        if not getattr(self.model, '_changed', False): # @@@ FSB! Gogo.
             lines = self.model.buffer[self.model.bufstart:self.model.bufend]
             lines = [self.model.parser._cutline(l) for l in lines]
             lines = [u'%s%s' % (indent, l) for l in lines]

@@ -1,5 +1,5 @@
 from node.ext import directory
-from nodes import (
+from gonodes import (
     Module,
     Docstring,
     ProtectedSection,
@@ -12,9 +12,7 @@ from nodes import (
 )
 from interfaces import Call
 
-
 directory.file_factories['.py'] = Module
-
 
 import parser
 Docstring.parserfactory = parser.BaseParser
