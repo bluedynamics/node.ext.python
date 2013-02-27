@@ -130,7 +130,7 @@ class BlockRenderer(BaseRenderer):
 class ImportRenderer(BaseRenderer):
 
     def __call__(self):
-        if not self.model.names:
+        if not getattr(self.model, 'names', False):
             raise Incomplete, u"Incomplete import definition."
         indent = self.model.nodelevel * 4 * u' '
         postlf = u''
@@ -271,11 +271,11 @@ class AttributeRenderer(BaseRenderer, ArgumentRenderer):
             raise Incomplete, u"Incomplete attribute definition."
         level = self.model.nodelevel
         indent = level * 4 * u' '
-        if not getattr(self.model, '_changed', False): # @@@ FSB! Gogo.
+
+        if not self.model._changed:
             lines = self.model.buffer[self.model.bufstart:self.model.bufend]
             lines = [self.model.parser._cutline(l) for l in lines]
             lines = [u'%s%s' % (indent, l) for l in lines]
-            lines += [u'' for i in range(self.model.postlf + 1)]
             return '\n'.join(lines)
         d_args, d_kwargs = self.model.extract_arguments()
         if not d_args and not d_kwargs:
@@ -327,7 +327,7 @@ class FunctionRenderer(BaseRenderer, ArgumentRenderer):
         ArgumentRenderer.__init__(self, model)
 
     def __call__(self):
-        if self.model.functionname is None:
+        if getattr(self.model, 'functionname', None) is None:
             raise Incomplete(u"Incomplete function definition.")
         showNotImplemented = True
         ret = list()

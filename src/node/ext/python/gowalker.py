@@ -61,9 +61,9 @@ class Walker(object):
                 bufstart=gopnode.startline,
                 bufend=gopnode.endline,
                 )"""
-        print "-"*40
+        print "-" * 40
         print call
-        print "-"*40
+        print "-" * 40
         import pdb;pdb.set_trace()
         newnode = eval(call)
         return newnode
