@@ -28,7 +28,7 @@ class metanode(object):
                  do_correct=True,
                  parser=None,
                  ):
-        """ Stores additional info about a ast node
+        """ Stores additional info about an ast node
         """
         self.parent = parent
         self.children = []
