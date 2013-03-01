@@ -254,10 +254,11 @@ class metanode(object):
 #                 repr(self.astnode),
 #                 ),
         # for field in self.astnode._fields:
-        #     print "%s:%s " % (field, repr(getattr(self.astnode, field, '-')),),
+        #   print "%s:%s " % (field, repr(getattr(self.astnode, field, '-')),),
         # print "Parent:", repr(self.parent)
         for l in xrange(self.startline, self.endline + 1):
-            res += "%03d:%s\n" % (l + self.offset, repr(self.sourcelines[l])[1:-1])
+            res += "%03d:%s\n" % (
+                l + self.offset, repr(self.sourcelines[l])[1:-1])
         return res
 
 
