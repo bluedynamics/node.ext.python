@@ -56,7 +56,14 @@ class metanode(object):
     def strip_comments(self, sourceline):
         """ Returns a line without comments, rstripped
         """
-        stripped = re.sub('("""|\'\'\'|"|\'|)(.*?)\\1.*?#(.*)', '\\1\\2\\1', sourceline).rstrip()
+        stripped = re.sub(
+            '("""|\'\'\'|"|\'|)(.*?)\\1.*?#(.*)',  # pattern
+            '\\1\\2\\1',  # replacement
+            sourceline
+        ).rstrip()
+        # so what does this regular expression mean?
+        # according to http://docs.python.org/2/library/re.html re.sub will
+        # substitute something that matches a pattern with a replacement ...
         return stripped
 
     def is_empty(self, sourceline):
