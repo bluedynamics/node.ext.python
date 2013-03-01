@@ -17,6 +17,8 @@ from node.ext.python.interfaces import (
     IPythonNode,
     IModule,
     IDocstring,
+    IDecorable,
+    ICallableArguments,
     IProtectedSection,
     IImport,
     IAttribute,
@@ -48,6 +50,8 @@ class PythonNode(OrderedNode):
                  ):
         OrderedNode.__init__(self, name)
         self.gopnode = gopnode
+        if gopnode:
+            self.astnode = gopnode.astnode
         self.buffer = buffer
         self.bufstart = bufstart
         self.bufend = bufend
@@ -147,6 +151,52 @@ class PythonNode(OrderedNode):
         return self.rendererfactory(self)()
 
 
+class CallableArguments(object):
+    """A Node for callable arguments.
+    """
+    implements(ICallableArguments)
+    def __init__(self):
+        self.args = list()
+        self.kwargs = odict()
+        self.s_args = None
+        self.s_kwargs = None
+
+    def extract_arguments(self):
+        _args = None
+        _kwargs = None
+        if self.s_args:
+            _args = self.s_args
+        else:
+            _args = self.args
+        if self.s_kwargs:
+            _kwargs = self.s_kwargs
+        else:
+            _kwargs = self.kwargs
+        return _args, _kwargs
+
+    def arguments_equal(self, other):
+        return self.args == other.args and self.kwargs == other.kwargs  # @@@ Gogo. just gessing here s_?
+
+
+class Decorable:
+    """mixin for decorables (Function, Attribute, Class)
+    """
+    implements(IDecorable)
+
+    def __init__(self):
+        self._decorators = list()
+
+    def decorators(self, name=None):
+        decorators = [d for d in self.filtereditems(IDecorator)]
+        if name is not None:
+            decorators = [d for d in decorators if d.decoratorname == name]
+        return decorators
+
+    def initdecorators(self):
+        for decorator in self._decorators:
+            self[decorator.uuid] = decorator
+
+
 class _TextMixin(object):
 
     def __init__(self):
@@ -218,18 +268,49 @@ class Block(PythonNode, _TextMixin):
             return "<" + self.__class__.__name__ + ' ' + self.nodename + ': [?:?] - %s>' % str(self.indent)
 
 
+# class Class(PythonNode, Decorable):
 class Class(PythonNode):
+    """A Node for a python class.
+    """
     implements(IClass)
 
-    def __init__(self, *args, **kwargs):
-        PythonNode.__init__(self, *args, **kwargs)
+    def __init__(self, classname=None, astnode=None, buffer=[]):
+        PythonNode.__init__(self, None, astnode, buffer)
+#        Decorable.__init__(self)
+        self.bases = list()
+        self._bases_orgin = list()
+        self.classname = classname
+
+# class Class(PythonNode):
+#     implements(IClass)
+
+#     def __init__(self, *args, **kwargs):
+#         PythonNode.__init__(self, *args, **kwargs)
 
 
-class Decorator(PythonNode):
-    implements(IDecorator)
+class Decorator(PythonNode, CallableArguments):
+    """A Node for a decorator.
+    """
 
-    def __init__(self, *args, **kwargs):
-        PythonNode.__init__(self, *args, **kwargs)
+    def __init__(self, decoratorname=None, astnode=None, buffer=[]):
+        PythonNode.__init__(self, None, astnode, buffer)
+        CallableArguments.__init__(self)
+        self.decoratorname = decoratorname
+        self._args_orgin = list()
+        self._kwargs_orgin = odict()
+
+    @property
+    def _changed(self):
+        if self.gopnode is None:
+            return True
+        if self.decoratorname != self._decoratorname_orgin:
+            return True
+        if self.s_args or self.s_kwargs:
+            return True
+        if self.args != self._args_orgin \
+                or self.kwargs != self._kwargs_orgin:
+            return True
+        return False
 
 
 class ProtectedSection(PythonNode, _TextMixin):
@@ -242,26 +323,24 @@ class ProtectedSection(PythonNode, _TextMixin):
             self.sectionname = args[0]
 
 
-class Function(PythonNode):
+class Function(PythonNode, CallableArguments, Decorable):
+    """A Node for a function.
+    """
     implements(IFunction)
 
-    def __init__(self, *args, **kwargs):
-        PythonNode.__init__(self, *args, **kwargs)
-        self.functionname = self.gopnode.astnode.name
-        # Extract arguments
+    def __init__(self, functionname=None, astnode=None, buffer=[]):
+        PythonNode.__init__(self, None, astnode, buffer)
+        CallableArguments.__init__(self)
+        Decorable.__init__(self)
         self.args = list()
         self.kwargs = odict()
-        argslen = len(self.gopnode.astnode.args.args)
-        defaultslen = len(self.gopnode.astnode.args.defaults)
-        offset = argslen - defaultslen
-        for i in xrange(argslen):
-            if i < offset:
-                # we have a regular argument
-                self.args.append(self.gopnode.astnode.args.args[i].id)
-            else:
-                # we have a default value
-                self.kwargs[self.gopnode.astnode.args.args[i].id] = \
-                    self.gopnode.get_astvalue(self.gopnode.astnode.args.defaults[i - offset])
+        self.functionname = functionname
+        if self.gopnode:
+            self.functionname = self.gopnode.astnode.name
+            # Extract arguments
+            import pdb;pdb.set_trace()
+            self.args = list()
+            self.kwargs = odict()
 
     def decorators(self, name=None):
         decorators = [d for d in self.filtereditems(IDecorator)]
@@ -323,21 +402,75 @@ class Docstring(PythonNode, _TextMixin):
 
 
 class Import(PythonNode):
-    implements(IImport)
+    """A Node for an import statement.
+    """
 
-    def __init__(self, *args, **kwargs):
-        PythonNode.__init__(self, *args, **kwargs)
+    def __init__(self, fromimport=None, names=[], astnode=None, buffer=[]):
+        PythonNode.__init__(self, None, astnode, buffer)
+        self.fromimport = fromimport
+        self.names = names
+        self._fromimport_orgin = None
+        self._names_orgin = list()
+
+    @property
+    def endlineno(self):
+        return self.bufend
+
+    @property
+    def _changed(self):
+        if self.gopnode is None:
+            return True
+        if self.names != self._names_orgin \
+                or self.fromimport != self._fromimport_orgin:
+            return True
+        return False
 
 
-class Attribute(PythonNode, _TextMixin):
+#class Attribute(PythonNode, CallableArguments):
+class Attribute(PythonNode, CallableArguments):
+    """A Node for attributes.
+    """
+
     implements(IAttribute)
 
-    def __init__(self, *args, **kwargs):
-        _TextMixin.__init__(self)
-        PythonNode.__init__(self, *args, **kwargs)
-        if args:
-            self.targets = args[0]
-            self.value = args[1]
+    def __init__(self, targets=list(), value=None, gopnode=None, buffer=[]):
+        PythonNode.__init__(self, None, gopnode, buffer)
+        CallableArguments.__init__(self)
+        # import pdb;pdb.set_trace()
+        self.targets = targets
+        self.value = value
+        # self.postlf = 0
+
+#        CallableArguments.__init__(self)
+    # def __init__(self, *args, **kwargs):
+    #     _TextMixin.__init__(self)
+    #     PythonNode.__init__(self, *args, **kwargs)
+    #     if args:
+    #         self.targets = args[0]
+    #         self.value = args[1]
+
+    @property
+    def endlineno(self):
+        return self.bufend
+
+    @property
+    def _changed(self):
+        if self.gopnode is None:
+            return True
+        if self.value != self._value_orgin:
+            return True
+        if self.targets != self._targets_orgin:
+            return True
+        if self.s_args or self.s_kwargs:
+            return True
+        if self.args != self._args_orgin \
+                or self.kwargs != self._kwargs_orgin:
+            return True
+        return False
+
+    def __repr__(self):
+        return '<Attribute object %s at %s>' % (self.targets, self.name)
+
 
  # class Assignment(PythonNode):
  #     implements(IAssignment)

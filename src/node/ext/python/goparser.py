@@ -48,8 +48,8 @@ class metanode(object):
 
         if parent is not None:
             parent.children.append(self)
-        # else:
-        #     parser.children.append(self)
+        else:
+            parser.children.append(self)
         if do_correct:
             self.correct()
 
@@ -84,10 +84,7 @@ class metanode(object):
         """ Would correct startlines that happen to be after endlines
         """
         if self.startline > self.endline:
-            import pdb  # erm, what's up here? XXX
-            pdb.set_trace()  # this code is not live, right?
             self.startline, self.endline = self.endline, self.startline
-            # that is not functional, right? XXX
 
     def correct_docstrings(self):
         """ Fixes endlines of docstrings

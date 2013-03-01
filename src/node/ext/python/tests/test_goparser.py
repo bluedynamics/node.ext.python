@@ -119,7 +119,22 @@ class TestMetanode(unittest.TestCase):
         """
         test for goparser.handle_upside_down_ness
         """
-        self.assertTrue(0)  # make this fail, function seems broken anyways!
+        from node.ext.python.goparser import metanode
+
+        mn1 = metanode(None, None, do_correct=False)
+        mn2 = metanode(None, None, do_correct=False)
+
+
+        mn = metanode(
+            mn1,  # a parent
+            mn2,  # a child
+            startline=5,
+            endline=2,
+        )
+        mn.handle_upside_down_ness()
+        self.assertTrue(
+            (mn.startline < mn.endline)
+        )  # XXX TODO fix the metanode mn, so this test works...
 
     def test_correct_docstrings(self):
         """

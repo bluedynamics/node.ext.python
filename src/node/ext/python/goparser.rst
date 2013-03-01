@@ -171,21 +171,21 @@ Test attribute::
     --- 2 (4) Name (41-41) (parent: Assign (41-41))
     041:    a = [1] + 1
     <BLANKLINE>
-    --- 1 (0) ExceptHandler (42-43 '<_ast.Name object at 0x101c70bd0>') (parent: TryExcept (40-45))
+    --- 1 (0) ExceptHandler (42-43 '<_ast.Name object at ...>') (parent: TryExcept (40-45))
     042:except Error, e:
     043:    print e
     <BLANKLINE>
-    --- 2 (4) Print (43-43) (parent: ExceptHandler (42-43 '<_ast.Name object at 0x101c70bd0>'))
+    --- 2 (4) Print (43-43) (parent: ExceptHandler (42-43 '<_ast.Name object at ...>'))
     043:    print e
     <BLANKLINE>
     --- 3 (10) Name (43-43) (parent: Print (43-43))
     043:    print e
     <BLANKLINE>
-    --- 1 (0) ExceptHandler (44-45 '<_ast.Name object at 0x101c70d10>') (parent: TryExcept (40-45))
+    --- 1 (0) ExceptHandler (44-45 '<_ast.Name object at ...>') (parent: TryExcept (40-45))
     044:except TypeError, e1:
     045:    print e1
     <BLANKLINE>
-    --- 2 (4) Print (45-45) (parent: ExceptHandler (44-45 '<_ast.Name object at 0x101c70d10>'))
+    --- 2 (4) Print (45-45) (parent: ExceptHandler (44-45 '<_ast.Name object at ...>'))
     045:    print e1
     <BLANKLINE>
     --- 3 (10) Name (45-45) (parent: Print (45-45))
@@ -232,12 +232,12 @@ Test attribute::
     --- 3 (4) Name (53-53) (parent: Assign (53-53))
     053:    a = [1] + 1
     <BLANKLINE>
-    --- 2 (0) ExceptHandler (54-56 '<_ast.Name object at 0x101c82310>') (parent: TryExcept (52-56))
+    --- 2 (0) ExceptHandler (54-56 '<_ast.Name object at ...>') (parent: TryExcept (52-56))
     054:except Error, e:
     055:    print e
     056:finally:
     <BLANKLINE>
-    --- 3 (4) Print (55-56) (parent: ExceptHandler (54-56 '<_ast.Name object at 0x101c82310>'))
+    --- 3 (4) Print (55-56) (parent: ExceptHandler (54-56 '<_ast.Name object at ...>'))
     055:    print e
     056:finally:
     <BLANKLINE>
@@ -731,5 +731,6 @@ Test attribute::
     193:           b, \\
     194:           c
     <BLANKLINE>
+
     >>> print repr(myparser.children)
         [Docstring (5-8), Docstring (10-10), Import (12-12), Import (13-13), ImportFrom (14-14), ImportFrom (15-15), ImportFrom (16-17), Comment (18-21), If (23-24), If (26-35), For (37-38), TryExcept (40-45), TryFinally (47-50), TryFinally (52-57), If (59-59), If (61-63), If (65-67), If (69-71), If (73-76), While (78-79), FunctionDef (81-82 'somefunction'), Assert (84-84), Assign (86-86), Assign (88-88), Assign (90-92), Assign (94-99), Assign (101-103), Assign (105-105), Assign (107-107), Assign (109-110), Comment (111-112), FunctionDef (115-116 'somedecoratedfunction'), Comment (117-118), Print (119-120), FunctionDef (122-125 'multilinefunctiondef'), ClassDef (127-144 'SomeClass'), ClassDef (146-160 'OtherClass'), ClassDef (162-165 'MultiLineClassDef'), FunctionDef (170-171 'multidecoratedfunction'), FunctionDef (176-177 'multilinedecorated'), ImportFrom (179-180), ImportFrom (182-185), Import (187-187), FunctionDef (189-194 'functionwithdocstring')]
