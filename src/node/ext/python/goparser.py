@@ -46,7 +46,7 @@ class metanode(object):
         # if self.get_type() == 'NoneType':
         #     import pdb;pdb.set_trace()
 
-        if parent != None:
+        if parent is not None:
             parent.children.append(self)
         # else:
         #     parser.children.append(self)
