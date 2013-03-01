@@ -188,10 +188,9 @@ class _TextMixin(object):
                 end -= 1
             lines = self.buffer[start:end]
             self.lines = [self.parser._cutline(l) for l in lines]
-        except TypeError, e:
+        except TypeError:
             self.lines = list()
         return self._lines
-
 
     text = property(_get_text, _set_text)
     lines = property(_get_lines, _set_lines)
