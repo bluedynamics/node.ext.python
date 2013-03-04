@@ -4,7 +4,7 @@ tests for classes in node.ext.python.nodes.py
 """
 
 
-class TestPythonNode(unittest.TestCase):
+class Test_PythonNode(unittest.TestCase):
     """
     tests for node.ext.python.nodes.py:PythonNode
     """
@@ -168,7 +168,7 @@ class TestPythonNode(unittest.TestCase):
     #     )
 
 
-class TestModule(unittest.TestCase):
+class Test_Module(unittest.TestCase):
     """
     tests for node.ext.python.nodes.py:Module
     """
