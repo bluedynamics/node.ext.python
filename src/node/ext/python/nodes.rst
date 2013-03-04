@@ -1,7 +1,7 @@
 Python Nodes
 ============
 
-Test id Directory and Module etc build the correct node index::
+Test if Directory and Module etc build the correct node index::
 
     >>> from node.ext.directory import Directory
     >>> from node.ext.python import Module
