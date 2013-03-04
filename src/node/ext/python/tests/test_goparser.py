@@ -7,7 +7,12 @@ class TestMetanode(unittest.TestCase):
     """
     def test_init(self):
         from node.ext.python.goparser import metanode
-        mn = metanode(None, None, do_correct=False)
+        from node.ext.python.goparser import GoParser
+        prsr = GoParser(
+            'foo',  # source
+            None,  # filename
+        )
+        mn = metanode(None, None, do_correct=False, parser=prsr)
         self.assertTrue(mn)
 
     def test_metanode_init_parent_not_none(self):
@@ -15,11 +20,22 @@ class TestMetanode(unittest.TestCase):
         coverage for goparser.py line 49
         """
         from node.ext.python.goparser import metanode
+        from node.ext.python.goparser import GoParser
+        prsr = GoParser(
+            'foo',  # source
+            None  # filename
+        )
         # a metanode
-        mn1 = metanode(None, None, do_correct=False)
+        mn1 = metanode(
+            None,  # parent
+            None,  # astnode
+            do_correct=False,
+            parser=prsr
+        )
         # another metanode, child of mn1
         mn2 = metanode(mn1, None, do_correct=False)
         self.assertTrue(mn2)
+        self.assertTrue(mn2 in mn1.children)
 
 # check out the following one (by removing comments)
 # it fails!
