@@ -7,7 +7,9 @@ class TestMetanode(unittest.TestCase):
     """
     def test_init(self):
         from node.ext.python.goparser import metanode
-        mn = metanode(None, None, do_correct=False)
+        from node.ext.python.goparser import GoParser
+        prsr = GoParser('', None)
+        mn = metanode(None, None, do_correct=False, parser=prsr)
         self.assertTrue(mn)
 
     def test_metanode_init_parent_not_none(self):

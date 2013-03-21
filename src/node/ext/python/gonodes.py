@@ -38,7 +38,7 @@ class PythonNode(OrderedNode):
 
     implements(IPythonNode)
 
-    parserfactory= None
+    parserfactory = None
     rendererfactory = None
 
     def __init__(self,
