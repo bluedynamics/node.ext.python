@@ -17,8 +17,17 @@ class Imports(object):
         self.context = context
 
     def set(self, fromimport=None, names=None):
+
         if fromimport is None and names is None:
             raise ValueError(u"No definitions given.")
+        
+        if type(names) == str:
+            #accept names to be a string and convert if necessary
+            names = [[names, None]]
+        else:
+            # convert entries to [name,None] if the entry is a string
+            [type(n) == str and [n, None] or n for n in names]
+        
         imports = self.context.imports()
         if len(imports) == 0:
             import_ = Import(fromimport, names)

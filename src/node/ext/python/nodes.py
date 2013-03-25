@@ -1,5 +1,7 @@
 import os
 import ast
+import uuid
+import re
 from odict import odict
 from plumber import plumber
 from node.behaviors import (
@@ -82,8 +84,11 @@ class PythonNode(OrderedNode):
     def docstrings(self):
         return [d for d in self.filtereditems(IDocstring)]
 
-    def blocks(self):
-        return [b for b in self.filtereditems(IBlock)]
+    def blocks(self, searchterm=None):
+        blocks = [b for b in self.filtereditems(IBlock)]
+        if searchterm:
+            blocks = [b for b in blocks if re.search(searchterm, b.text)]
+        return blocks
 
     def imports(self):
         return [i for i in self.filtereditems(IImport)]
@@ -193,6 +198,16 @@ class Module(PythonNode):
         # set by parser directly. XXX
         pass
 
+    def insertafterimports(self, somenode):
+        imps = self.imports()
+        if imps:
+            lastimp = imps[-1]
+            self.insertafter(somenode, lastimp)
+        else:
+            self.insertlast(somenode)
+            
+        
+        
     buffer = property(_get_buffer, _set_buffer)
 
     @property
@@ -334,7 +349,7 @@ class Block(PythonNode, _TextMixin):
 
     def __init__(self, text=None, buffer=[]):
         _TextMixin.__init__(self)
-        PythonNode.__init__(self, None, None, buffer)
+        PythonNode.__init__(self, str(uuid.uuid4()), None, buffer)
         self.postlf = 1
         self._lines = False
         self._text = False
@@ -379,7 +394,45 @@ class Block(PythonNode, _TextMixin):
             end -= 1
         return end
 
+    def findlines(self, searchterm):
+        '''returns line numbers containing a searchterm given as exact match or
+         rexexp'''
+        numberedlines = zip(range(len(self.lines)),self.lines)
+        return [l for l in numberedlines if searchterm in l[1] or re.search(searchterm,l[1])]
+    
+    def insertlinebefore(self, newtext, searchterm, index=0, ifnotpresent=False):
+        '''finds the matching lines and inserts the text before found line nr. 
+        index, if nothing found, insert at beginning of block'''
+        if ifnotpresent:
+            if self.findlines(newtext):
+                return
 
+        hits=self.findlines(searchterm)
+        pos=0
+        if hits:
+            pos=hits[index][0]
+            
+        lines=self.lines
+        lines.insert(pos,newtext)
+        self._set_lines(lines)
+
+    def insertlineafter(self, newtext, searchterm, index=0, ifnotpresent=False):
+        '''finds the matching lines and inserts the text before found line nr. 
+        index, if nothing found insert at end of block'''
+        if ifnotpresent:
+            if self.findlines(newtext):
+                return
+            
+        lines=self.lines
+        pos=len(lines)
+        if searchterm:
+            hits=self.findlines(searchterm)
+            if hits:
+                pos=hits[index][0]
+            
+        lines.insert(pos+1,newtext)
+        self._set_lines(lines)
+        
 @implementer(IImport)
 class Import(PythonNode):
     """A Node for an import statement.
@@ -462,7 +515,7 @@ class CallableArguments(object):
                     val = val[:val.rfind(',')]
                 # for the last one we chop off the trailing ')'
                 else:
-                    val = fcalls[offset: - 1]
+                    val = fcalls[offset:-1]
                 _kwargs[key] = val
         else:
             _kwargs = self.kwargs
@@ -607,7 +660,8 @@ class Function(PythonNode, CallableArguments, Decorable):
     """
 
     def __init__(self, functionname=None, astnode=None, buffer=[]):
-        PythonNode.__init__(self, None, astnode, buffer)
+        
+        PythonNode.__init__(self, functionname, astnode, buffer)
         CallableArguments.__init__(self)
         Decorable.__init__(self)
         self.functionname = functionname

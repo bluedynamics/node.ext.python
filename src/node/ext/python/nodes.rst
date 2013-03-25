@@ -118,16 +118,101 @@ Change Block contents::
     <BLANKLINE>
     EOF
 
-    >>> block.text = u'try:\n    import ldap\nexcept ImportError, e:\n    pass'
+    >>> text = u'try:\n    import ldap\n    print 1\n    a=1\n    print 2\n    print 3\nexcept ImportError, e:\n    pass'
+    >>> block.text = text
     >>> print_source(block())
     try:
         import ldap
+        print 1
+        a=1
+        print 2
+        print 3
+    except ImportError, e:
+        pass
+    <BLANKLINE>
+    <BLANKLINE>
+    EOF
+    
+    find lines containing some text
+    >>> print block.findlines('print')
+    [(2, u'    print 1'), (4, u'    print 2'), (5, u'    print 3')]
+    
+    Do some text manipulations
+    insert 'foo()' call before first print statement
+    
+    >>> block.insertlinebefore('    foo()','print',0)
+    >>> print_source(block())
+    try:
+        import ldap
+        foo()
+        print 1
+        a=1
+        print 2
+        print 3
+    except ImportError, e:
+        pass
+    <BLANKLINE>
+    <BLANKLINE>
+    EOF
+    
+    insert 'bar()' call after last print statement
+    >>> block.insertlineafter('    bar()','print',-1)
+    >>> print_source(block())
+    try:
+        import ldap
+        foo()
+        print 1
+        a=1
+        print 2
+        print 3
+        bar()
     except ImportError, e:
         pass
     <BLANKLINE>
     <BLANKLINE>
     EOF
 
+    insert 'baz()' call after last blorf statement
+    because there is no blorf line it should append it at the end of the block
+    >>> block.insertlineafter('    baz()','blorf',-1)
+    >>> print_source(block())
+    try:
+        import ldap
+        foo()
+        print 1
+        a=1
+        print 2
+        print 3
+        bar()
+    except ImportError, e:
+        pass
+    <BLANKLINE>
+    <BLANKLINE>
+    baz()
+    EOF
+
+    shouldnt change anything, since newtext is already in the block
+    >>> block.insertlineafter('    baz()','blorf',-1, ifnotpresent=True)
+    >>> print_source(block())
+    try:
+        import ldap
+        foo()
+        print 1
+        a=1
+        print 2
+        print 3
+        bar()
+    except ImportError, e:
+        pass
+    <BLANKLINE>
+    <BLANKLINE>
+    baz()
+    EOF
+    
+    
+    Reset block's test for further tests
+    >>> block.text = u'try:\n    import ldap\nexcept ImportError, e:\n    pass'
+    
 Change Attribute contents::
 
     >>> attr = module.attributes()[0]
