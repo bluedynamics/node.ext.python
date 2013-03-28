@@ -602,6 +602,7 @@ class Decorator(PythonNode, CallableArguments):
         PythonNode.__init__(self, None, astnode, buffer)
         CallableArguments.__init__(self)
         self.decoratorname = decoratorname
+        self.__name__=self.uuid
         self._args_orgin = list()
         self._kwargs_orgin = odict()
         self.parser = self.parserfactory(self)
