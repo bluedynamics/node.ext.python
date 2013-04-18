@@ -6,7 +6,12 @@ from node.ext.python.interfaces import (
 )
 from node.ext.python import Import
 
-
+def get_dotted_name_from_astnode(astnode):
+    if hasattr(astnode,'value'):
+        return get_dotted_name_from_astnode(astnode.value)+'.'+astnode.attr
+    else:
+        return astnode.id
+        
 class Imports(object):
     """Adapter like object for managing imports on modules.
     """

@@ -312,7 +312,7 @@ class DecoratorRenderer(BaseRenderer, ArgumentRenderer):
         name = self.model.decoratorname
         level = self.model.nodelevel
         d_args, d_kwargs = self.model.extract_arguments()
-        if d_args or d_kwargs.keys():
+        if self.model.is_callable:
             rendered_args = self.render_arguments(level, len(name) + 2,
                                                   d_args, d_kwargs)
             return u'%s@%s(%s)\n' % (indent, name, rendered_args)

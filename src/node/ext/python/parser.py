@@ -7,6 +7,8 @@ import exceptions
 from odict import odict
 from zope.component import provideHandler
 from node.ext.directory.interfaces import IFileAddedEvent
+from utils import get_dotted_name_from_astnode
+
 from node.ext.python.interfaces import (
     CODESECTION_STARTTOKEN,
     CODESECTION_ENDTOKEN,
@@ -487,16 +489,19 @@ class DecoratorParser(BaseParser):
     def __call__(self):
         astnode = self.model.astnode
         if isinstance(astnode, _ast.Name) or isinstance(astnode, _ast.Attribute):
+            #the case where the decorator has no parameters
             if not getattr(astnode, 'id', None):
                 # XXX: added by phil because sometimes astnode.id is None
-                astnode.id = astnode.attr
+                astnode.id = get_dotted_name_from_astnode(astnode)
             self.model.decoratorname = astnode.id
             self.model._decoratorname_orgin = astnode.id
             return
 
+        #the decorator has parameters
+        self.model.is_callable=True
         if not getattr(astnode.func, 'id', None):
-            # XXX: added by phil because sometimes astnode.func.id is None
-            astnode.func.id = astnode.func.attr
+            astnode.func.id=get_dotted_name_from_astnode(astnode.func)
+
         self.model.decoratorname = astnode.func.id
         self.model._decoratorname_orgin = astnode.func.id
         self._parseastargs(astnode)

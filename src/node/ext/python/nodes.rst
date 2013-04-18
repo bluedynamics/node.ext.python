@@ -305,6 +305,7 @@ Change Function contents::
     ...
     EOF
 
+
 Change Decorator contents::
 
     >>> dec = func.decorators()[0]
@@ -313,12 +314,21 @@ Change Decorator contents::
     <BLANKLINE>
     EOF
 
+    since the decorator was parsed with args it has still the call brackets
     >>> dec.args = list()
+    >>> print_source(dec())
+        @somedecorator()
+    <BLANKLINE>
+    EOF
+
+    now we make it non-callable
+    >>> dec.is_callable=False
     >>> print_source(dec())
         @somedecorator
     <BLANKLINE>
     EOF
-
+    
+    
     >>> dec.kwargs = {'name': None}
     >>> print_source(dec())
         @somedecorator(name=None)

@@ -602,6 +602,7 @@ class Decorator(PythonNode, CallableArguments):
         PythonNode.__init__(self, None, astnode, buffer)
         CallableArguments.__init__(self)
         self.decoratorname = decoratorname
+        self._callable=False #used by the is_callable property
         self.__name__=self.uuid
         self._args_orgin = list()
         self._kwargs_orgin = odict()
@@ -654,7 +655,15 @@ class Decorator(PythonNode, CallableArguments):
             return True
         return False
 
-
+    @property
+    def is_callable(self):
+        if self._callable or self.args or self.kwargs.keys():
+            return True
+    
+    @is_callable.setter
+    def is_callable(self, value):
+        self._callable=value
+        
 @implementer(IFunction)
 class Function(PythonNode, CallableArguments, Decorable):
     """A Node for a function.
