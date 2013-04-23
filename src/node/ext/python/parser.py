@@ -433,7 +433,7 @@ class AttributeParser(BaseParser):
                 for name in target.elts:
                     self.model.targets.append(name.id)
             elif isinstance(target, _ast.Subscript):
-                self.model.targets.append(target.value.attr)
+                self.model.targets.append(get_dotted_name_from_astnode(target.value))
             else:
                 try:
                     self.model.targets.append(target.id)

@@ -390,8 +390,11 @@ class Block(PythonNode, _TextMixin):
     @property
     def endlineno(self):
         end = self.bufend
-        while not self.buffer[end - 1].strip():
-            end -= 1
+        try:
+            while not (self.buffer[end - 1].strip()):
+                end -= 1
+        except:
+            end=len(self.buffer)
         return end
 
     def findlines(self, searchterm):
