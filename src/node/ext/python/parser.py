@@ -393,8 +393,22 @@ class ModuleParser(BaseParser):
             elif position == POSITION_BEFORE:
                 node.__parent__.insertbefore(child, node)
             elif position == POSITION_AFTER:
-                node.__parent__.insertafter(child, node)
-
+                try:
+                    node.__parent__.insertafter(child, node)
+                except AttributeError:
+                    #XXX: handle this problem correctly
+                    #Currently I added the message, so that the user
+                    #knows how to workaround
+                    if isinstance(child,Block):
+                        code='\n'.join(child.buffer)
+                        raise ValueError( 'This should not have happened, the parser has \n\
+                        currently problems when a function or class ends\n \
+                        with a comment\n \
+                        So please check if your block has a comment at its end\n \
+                        and remove it if necessary\n\
+                        see the code: \n%s' % code)
+                    else:
+                        raise
 
 class ImportParser(BaseParser):
 
