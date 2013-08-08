@@ -118,7 +118,10 @@ class BlockRenderer(BaseRenderer):
 
     def __call__(self):
         indent = self.model.nodelevel * 4 * u' '
-        lines = [u'%s%s' % (indent, l) for l in self.model.lines]
+        try:
+            lines = [u'%s%s' % (indent, l) for l in self.model.lines]
+        except UnicodeError:
+            raise ValueError, 'Unicode Error shouldnt happen here, TODO: handle encoding correctly:\n %s' % '\n'.join(self.model.lines)
         if lines:
             lines += [u'' for i in range(self.model.postlf + 1)]
             return u'\n'.join(lines)
