@@ -2,6 +2,7 @@ import os
 import ast
 import uuid
 import re
+from types import StringTypes
 from odict import odict
 from plumber import plumber
 from node.behaviors import (
@@ -564,9 +565,13 @@ class Attribute(PythonNode, CallableArguments):
     """
 
     def __init__(self, targets=list(), value=None, astnode=None, buffer=[]):
-        PythonNode.__init__(self, None, astnode, buffer)
+        PythonNode.__init__(self, str(uuid.uuid4()), astnode, buffer)
         CallableArguments.__init__(self)
-        self.targets = targets
+        if isinstance(targets, StringTypes):
+            self.targets=[targets]
+        else:
+            self.targets = targets
+            
         self.value = value
         self.postlf = 0
         self.parser = self.parserfactory(self)
@@ -731,6 +736,14 @@ class Class(PythonNode, Decorable):
         self.parser = self.parserfactory(self)
         if astnode is not None:
             self.parser()
+
+    def insertafterlastattr(self, somenode):
+        atts = self.attributes()
+        if atts:
+            lastatt = atts[-1]
+            self.insertafter(somenode, lastatt)
+        else:
+            self.insertlast(somenode)
 
     @property
     def defendlineno(self):
