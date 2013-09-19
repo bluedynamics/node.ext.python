@@ -291,6 +291,7 @@ class Class(PythonNode):
 class Decorator(PythonNode, CallableArguments):
     """A Node for a decorator.
     """
+    implements(IDecorator)
 
     def __init__(self, decoratorname=None, astnode=None, buffer=[]):
         PythonNode.__init__(self, None, astnode, buffer)
@@ -338,7 +339,6 @@ class Function(PythonNode, CallableArguments, Decorable):
         if self.gopnode:
             self.functionname = self.gopnode.astnode.name
             # Extract arguments
-            import pdb;pdb.set_trace()
             self.args = list()
             self.kwargs = odict()
 
@@ -436,7 +436,6 @@ class Attribute(PythonNode, CallableArguments):
     def __init__(self, targets=list(), value=None, gopnode=None, buffer=[]):
         PythonNode.__init__(self, None, gopnode, buffer)
         CallableArguments.__init__(self)
-        # import pdb;pdb.set_trace()
         self.targets = targets
         self.value = value
         # self.postlf = 0

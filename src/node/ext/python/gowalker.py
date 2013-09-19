@@ -19,7 +19,7 @@ from node.ext.python.gonodes import (
     Decorator,
     ProtectedSection,
     Attribute,
-    Expression,
+    #Expression,
 )
 
 typedefs = {
@@ -29,7 +29,7 @@ typedefs = {
     'ImportFrom': 'Import',
     'Decorator': 'Decorator',
     'Assign': 'Attribute',  # value oder args und kwargs
-    'Expr': 'Expression',  # @@@ Gogo. needs impl ;-)
+    ##'Expr': 'Expression',  # @@@ Gogo. needs impl ;-)
 }
 
 subdefs = {
@@ -40,15 +40,23 @@ subdefs = {
 
 
 class Walker(object):
-
+    """
+    XXX missing docstring
+    """
     gopnodes = None
     nodes = []
     protected_lines = []
 
     def __init__(self, filename):
+        """
+        XXX missing docstring
+        """
         self.filename = filename
 
     def createNodeByType(self, gopnode, force=None):
+        """
+        XXX missing docstring
+        """
         if force:
             nodetype = force
         else:
@@ -64,14 +72,18 @@ class Walker(object):
         print "-" * 40
         print call
         print "-" * 40
-        import pdb;pdb.set_trace()
+        import pdb
+        pdb.set_trace()  # keule!
         newnode = eval(call)
         return newnode
 
     def createSubnode(self, gopnode, force=None):
+        """
+        XXX missing docstring
+        """
         wanted_subtypes = subdefs.get(gopnode.get_type(), [])
         if gopnode.startline in self.protected_lines:
-#            import pdb;pdb.set_trace()
+            # import pdb;pdb.set_trace()
             here = self.createNodeByType(gopnode, force="ProtectedSection")
         else:
             here = self.createNodeByType(gopnode, force)
@@ -115,7 +127,7 @@ class Walker(object):
     #     if node_a.bufend != node_b.bufstart-1:
     #         return both
     #     newnode = Block(node_a.nodename+"+"+node_b.nodename,\
-    #             node_a.gopnode, # @@@ other.gopnode is being discarded here...
+    #             node_a.gopnode, # @@@ other.gopnode is being discarded here..
     #             node_a.buffer+node_b.buffer,
     #             node_a.bufstart,
     #             node_b.bufend,
@@ -123,6 +135,9 @@ class Walker(object):
     #     return [newnode]
 
     def clean_pair(self, node_a, node_b):
+        """
+        XXX missing docstring
+        """
         if node_a.get_type() == node_b.get_type() == 'ProtectedSection':
             print "About to delete %s" % (node_a,)
             node_b.bufstart = min(node_a.bufstart, node_b.bufstart)
@@ -136,6 +151,9 @@ class Walker(object):
         node_b.gopnode.endline = node_b.bufend
 
     def serialized_tree(self, nodes):
+        """
+        XXX missing docstring
+        """
         sernodes = []
         for node in nodes:
             sernodes.append(node)
@@ -143,6 +161,9 @@ class Walker(object):
         return sernodes
 
     def cleanup(self, node):
+        """
+        XXX missing docstring
+        """
         sertree = self.serialized_tree(node.values())
 #        newnodes = []
         i = 0
@@ -209,7 +230,7 @@ class Walker(object):
 def parse_module_handler(obj, event):
     """Called, if ``Module`` is created and added to ``Directory`` node.
     """
-    import pdb;pdb.set_trace()
+    import pdb;pdb.set_trace()  # keule!
     obj.parser()
 
 provideHandler(parse_module_handler, [IModule, IFileAddedEvent])

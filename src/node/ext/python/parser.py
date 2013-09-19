@@ -41,7 +41,9 @@ POSITION_BEFORE = -1
 
 
 class BaseParser(object):
-
+    """
+    XXX missing docstring
+    """
     def __init__(self, model):
         self.model = model
 
@@ -216,6 +218,9 @@ provideHandler(parse_module_handler, [IModule, IFileAddedEvent])
 
 
 class ModuleParser(BaseParser):
+    """
+    XXX missing docstring
+    """
 
     def __call__(self):
         path = self.model.filepath
@@ -395,6 +400,9 @@ class ModuleParser(BaseParser):
 
 
 class ImportParser(BaseParser):
+    """
+    XXX missing docstring
+    """
 
     def __call__(self):
         astnode = self.model.astnode
@@ -423,6 +431,9 @@ class ImportParser(BaseParser):
 
 
 class AttributeParser(BaseParser):
+    """
+    XXX missing docstring
+    """
 
     def __call__(self):
         astnode = self.model.astnode
@@ -483,6 +494,9 @@ class AttributeParser(BaseParser):
 
 
 class DecoratorParser(BaseParser):
+    """
+    XXX missing docstring
+    """
 
     def __call__(self):
         astnode = self.model.astnode
@@ -520,6 +534,9 @@ class DecoratorParser(BaseParser):
 
 
 class FunctionParser(BaseParser):
+    """
+    XXX missing docstring
+    """
 
     def __call__(self):
         astnode = self.model.astnode
@@ -566,6 +583,9 @@ class FunctionParser(BaseParser):
 
 
 class ClassParser(BaseParser):
+    """
+    XXX missing docstring
+    """
 
     def __call__(self):
         astnode = self.model.astnode

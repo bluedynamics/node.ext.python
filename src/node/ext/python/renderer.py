@@ -17,14 +17,26 @@ from interfaces import (
 
 
 class BaseRenderer(object):
+    """
+    XXX missing docstring
+    """
 
     def __init__(self, model):
+        """
+        XXX missing docstring
+        """
         self.model = model
 
     def __call__(self):
+        """
+        XXX missing docstring
+        """
         raise NotImplemented(u'BaseRenderer does not implement ``__call__``')
 
     def _calcpostlf(self, values):
+        """
+        XXX missing docstring
+        """
         valuecount = len(values)
         sametype = False
         for i in range(valuecount):
@@ -54,10 +66,16 @@ class BaseRenderer(object):
 
 
 class ModuleRenderer(BaseRenderer):
+    """
+    XXX missing docstring
+    """
     CODING = u'# -*- coding: %s -*-\n'
     _write_file = True
 
     def __call__(self):
+        """
+        XXX missing docstring
+        """
         enc = self.CODING % self.model.encoding
         values = self.model.values()
         self._calcpostlf(values)
@@ -75,6 +93,9 @@ class ModuleRenderer(BaseRenderer):
 
 
 class DocstringRenderer(BaseRenderer):
+    """
+    XXX missing docstring
+    """
 
     def __call__(self):
         line = ''
@@ -93,10 +114,11 @@ class DocstringRenderer(BaseRenderer):
 
 
 class ProtectedSectionRenderer(BaseRenderer):
-
+    """
+    XXX missing docstring
+    """
     def __call__(self):
         if getattr(self.model, 'sectionname', None) is None:
-            # import pdb;pdb.set_trace()
             raise Incomplete, u"Incomplete protected section definition."
         if getattr(self.model, 'bufstart', None) and \
             getattr(self.model, 'bufend', None):
@@ -117,7 +139,9 @@ class ProtectedSectionRenderer(BaseRenderer):
 
 
 class BlockRenderer(BaseRenderer):
-
+    """
+    XXX missing docstring
+    """
     def __call__(self):
         indent = self.model.nodelevel * 4 * u' '
         lines = [u'%s%s' % (indent, l) for l in self.model.lines]
@@ -128,7 +152,9 @@ class BlockRenderer(BaseRenderer):
 
 
 class ImportRenderer(BaseRenderer):
-
+    """
+    XXX missing docstring
+    """
     def __call__(self):
         if not getattr(self.model, 'names', False):
             raise Incomplete, u"Incomplete import definition."
@@ -168,6 +194,9 @@ class ImportRenderer(BaseRenderer):
 
 
 class ArgumentRenderer(object):
+    """
+    XXX missing docstring
+    """
     LIMIT = 80
 
     def __init__(self, model=None):
@@ -190,12 +219,18 @@ class ArgumentRenderer(object):
         return u'%s=%s' % (kw, unicode(arg)) # XXX encoding
 
     def resolve_call(self, call):
+        """
+        XXX missing docstring
+        """
         ret = '%s(' % call['name']
         args = [self.render_arg(a) for a in call['args']]
         kwargs = [self.render_kwarg(kw, a) for kw, a in call['kwargs'].items()]
         return '%s%s)' % (ret, ', '.join(args + kwargs))
 
     def render_arguments(self, indent, baselen, args=[], kwargs=odict()):
+        """
+        XXX missing docstring
+        """
         self._arglines = list()
         arguments = list()
         for arg in args:
@@ -222,6 +257,9 @@ class ArgumentRenderer(object):
         return u',\n'.join(self._arglines)
 
     def _resolve_arglines(self, arguments, indent, from_inner=False):
+        """
+        XXX missing docstring
+        """
         if not from_inner:
             reflen = self._startlen
         elif self._startlen_exeeds:
@@ -262,11 +300,19 @@ class ArgumentRenderer(object):
 
 
 class AttributeRenderer(BaseRenderer, ArgumentRenderer):
-
+    """
+    XXX missing docstring
+    """
     def __init__(self, model):
+        """
+        XXX missing docstring
+        """
         ArgumentRenderer.__init__(self, model)
 
     def __call__(self):
+        """
+        XXX missing docstring
+        """
         if not getattr(self.model, 'targets', False) or not getattr(self.model, 'value', False):
             raise Incomplete, u"Incomplete attribute definition."
         level = self.model.nodelevel
@@ -298,11 +344,19 @@ class AttributeRenderer(BaseRenderer, ArgumentRenderer):
 
 
 class DecoratorRenderer(BaseRenderer, ArgumentRenderer):
-
+    """
+    XXX missing docstring
+    """
     def __init__(self, model):
+        """
+        XXX missing docstring
+        """
         ArgumentRenderer.__init__(self, model)
 
     def __call__(self):
+        """
+        XXX missing docstring
+        """
         if self.model.decoratorname is None:
             raise Incomplete, u"Incomplete decorator definition."
         indent = self.model.nodelevel * 4 * u' '
@@ -322,11 +376,19 @@ class DecoratorRenderer(BaseRenderer, ArgumentRenderer):
 
 
 class FunctionRenderer(BaseRenderer, ArgumentRenderer):
-
+    """
+    XXX missing docstring
+    """
     def __init__(self, model):
+        """
+        XXX missing docstring
+        """
         ArgumentRenderer.__init__(self, model)
 
     def __call__(self):
+        """
+        XXX missing docstring
+        """
         if getattr(self.model, 'functionname', None) is None:
             raise Incomplete(u"Incomplete function definition.")
         showNotImplemented = True
@@ -374,7 +436,9 @@ class FunctionRenderer(BaseRenderer, ArgumentRenderer):
 
 
 class ClassRenderer(BaseRenderer, ArgumentRenderer):
-
+    """
+    XXX missing docstring
+    """
     def __call__(self):
         if self.model.classname is None:
             raise Incomplete(u"Incomplete class definition.")
