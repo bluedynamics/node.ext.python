@@ -437,9 +437,11 @@ class Block(PythonNode, _TextMixin):
         lines.insert(pos+1,newtext)
         self._set_lines(lines)
         
-    def appendline(self,newtext):
+    def appendline(self,newtext, ifnotpresent=False):
         '''appends a line at end of block'''
-        self.lines.append(newtext)
+        
+        if not ifnotpresent or newtext not in self.lines:
+            self.lines.append(newtext)
         
         
 @implementer(IImport)
