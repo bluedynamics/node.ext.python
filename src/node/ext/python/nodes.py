@@ -437,6 +437,11 @@ class Block(PythonNode, _TextMixin):
         lines.insert(pos+1,newtext)
         self._set_lines(lines)
         
+    def appendline(self,newtext):
+        '''appends a line at end of block'''
+        self.lines.append(newtext)
+        
+        
 @implementer(IImport)
 class Import(PythonNode):
     """A Node for an import statement.
